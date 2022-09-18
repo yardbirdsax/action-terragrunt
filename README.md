@@ -7,24 +7,26 @@ aims to implement the following requirements:
 
 * Introduce the concept of a _default_ configuration, which defines the values passed to the
   underlying Terraform deployment _unless an overlay / override is explicitly provided_.
-* Codify a standard two layer hierarchical organization framework for how infrastructure is typically
-  deployed:
-  
-  * **Stage:** This is the functional use of the infrastructure, typically described by words like
-    `development`, `integration`, `staging`, and `production`.
-  * **Environment:** This is the location of the infrastructure, usually the AWS region name.
+* Enable a flexible model for allowing selective override of default values where required, by
+  allowing consumers to specify one or more additional Terragrunt files to include in the final,
+  generated configuration. Paths to files can be determined based on passed in values and templates
+  strings.
+* Delegate the injection of values used in determining the included file paths to the CICD pipeline
+  itself, by exposing a known interface for passing in arbitrary named values.
 
-  >**Note:** These concepts are largely based on the tenets set forth by the
-  >[CloudPosse](https://github.com/cloudposse) organization, specifically the labels described in
-  >their [terraform-null-label](https://github.com/cloudposse/terraform-null-label) module.
-* Delegate the injection of the stage and environment values to the CICD pipeline itself, rather
-  than requiring the use of Terragrunt files that are largely duplicates of each other (with the
-  exception of environment and stage names).
+In this way, the Action seeks to implement the described pattern without enforcing bespoke rules
+around the specific structure of deployments.
 
 ## Example
 
 This section describes a complete example of how this Action and design pattern makes the deployment
 of large, distributed environments more maintainable.
+
+> **Note:** This example builds primarily on concepts set forth by the
+> [CloudPosse](https://github.com/cloudposse) organization, specifically the hierarchy of labels
+> described in their [terraform-null-label](https://github.com/cloudposse/terraform-null-label)
+> module, such as `stage` (the logical use of infrastructure, such as `development`, `staging`, and
+> `production`) and `environment` (the region in which infrastructure is deployed).
 
 Consider the following situation: within your organization, you have one hundred different
 microservices, each of which is stored in its own GitHub repository. Along side the application
@@ -184,11 +186,11 @@ A reference implementation of this solution might look like this.
         "development": {
           "environments": [
             "us-east-1": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             },
             "us-east-2": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             }
           ]
@@ -196,11 +198,11 @@ A reference implementation of this solution might look like this.
         "staging": {
           "environments": [
             "us-east-1": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             },
             "us-east-2": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             }
           ]
@@ -208,15 +210,15 @@ A reference implementation of this solution might look like this.
         "production": {
           "environments": [
             "us-east-1": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             },
             "us-east-2": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             },
             "us-west-2": {
-              "includes": [],
+              "includes": {},
               "extraValues": {} 
             },
           ]

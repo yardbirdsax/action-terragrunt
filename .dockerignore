@@ -1,0 +1,7 @@
+LICENSE
+integration/
+.vscode/
+.bin/
+README.md
+Dockerfile
+.dockerignore

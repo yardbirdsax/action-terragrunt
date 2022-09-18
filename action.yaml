@@ -1,0 +1,29 @@
+name: Terragrunt Overlay
+description: Apply default and overlayed Terragrunt configurations with GitHub Actions.
+author: Josh Feierman <josh@sqljosh.com>
+runs:
+  using: docker
+  image: 'Dockerfile'
+inputs:
+  base-directory:
+    description: |
+      The base directory for all Terragrunt configurations. Defaults to the root of the
+      repository.
+    default: "."
+    required: false
+  additional-values:
+    description: |
+      A JSON object of key/value pairs that are passed to the templating process. (Not yet implemented.)
+    required: false
+    default: "{}"
+  includes:
+    description: |
+      A JSON object of keys/paths to Terragrunt files that will be included in the final generated file
+      via `include` blocks. The key is used to label the `include` block and must be unique. (Not
+      yet implemented.)
+    required: false
+    default: "{}"
+  terraform-command:
+    description: |
+      The Terraform command to run.
+    required: true

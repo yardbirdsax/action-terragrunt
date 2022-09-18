@@ -2,5 +2,5 @@
   "rewrap.autoWrap.enabled": true,
   "rewrap.wrappingColumn": 100,
   "rewrap.reformat": true,
-  "rewrap.wholeComment": true
+  "rewrap.wholeComment": true,
 }
