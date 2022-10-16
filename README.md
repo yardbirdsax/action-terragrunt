@@ -2,235 +2,83 @@
 
 [Terragrunt](https://terragrunt.gruntwork.io) is a tool used to help make repeatable deployments
 with Terraform in a DRY fashion. This repository contains a re-usable Action designed to help make
-this even more useful in the context of large, diverse, distributed environments. Specifically, it
+using Terragrunt in the context of GitHub Actions easy. Specifically, it
 aims to implement the following requirements:
 
-* Introduce the concept of a _default_ configuration, which defines the values passed to the
-  underlying Terraform deployment _unless an overlay / override is explicitly provided_.
-* Enable a flexible model for allowing selective override of default values where required, by
-  allowing consumers to specify one or more additional Terragrunt files to include in the final,
-  generated configuration. Paths to files can be determined based on passed in values and templates
-  strings.
-* Delegate the injection of values used in determining the included file paths to the CICD pipeline
-  itself, by exposing a known interface for passing in arbitrary named values.
+* Provide visibility into the status of a particular execution of Terragrunt by way of sticky pull
+  request comments.
+* Provide a mechanism for ensuring that only a plan that was previously reviewed is used when
+  applying a deployment.
+* Allow for the applying of infrastructure changes using a ChatOps style interface, such that
+  changes can be applied while the pull request is still open (helping to prevent the classic "fail
+  on apply -> `main` broken problem), while still ensuring GitHub's native approval mechanisms are enforced.
 
-In this way, the Action seeks to implement the described pattern without enforcing bespoke rules
-around the specific structure of deployments.
+## Workflow
 
-## Example
+The workflow this Action seeks to implement can be visualized in the following stages.
 
-This section describes a complete example of how this Action and design pattern makes the deployment
-of large, distributed environments more maintainable.
+### Generate Plan Stage
 
-> **Note:** This example builds primarily on concepts set forth by the
-> [CloudPosse](https://github.com/cloudposse) organization, specifically the hierarchy of labels
-> described in their [terraform-null-label](https://github.com/cloudposse/terraform-null-label)
-> module, such as `stage` (the logical use of infrastructure, such as `development`, `staging`, and
-> `production`) and `environment` (the region in which infrastructure is deployed).
-
-Consider the following situation: within your organization, you have one hundred different
-microservices, each of which is stored in its own GitHub repository. Along side the application
-code sits the Terragrunt files that define the infrastructure required to run the application. You
-are following Terragrunt's recommended design patterns, such as the use of [immutable, versioned
-Terraform
-modules](https://terragrunt.gruntwork.io/docs/getting-started/quick-start/#promote-immutable-versioned-terraform-modules-across-environments).
-Each stage is deployed in a different AWS Account, following the best practice of segmentation and
-blast radius limitation defined in the [Security pillar of the AWS Well Architected Framework](https://docs.aws.amazon.com/wellarchitected/latest/security-pillar/aws-account-management-and-separation.html).
-
-### How we do it now
-
-The typical way to lay out the Terragrunt files in the service repository might look like this:
-
-```
-|-- infrastructure/
-|   |-- development/
-|   |   |-- terragrunt.hcl 
-|   |   |-- us-east-1/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- us-east-2/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |-- staging/ # defines configurations common across all staging deployments
-|   |   |-- terragrunt.hcl 
-|   |   |-- us-east-1/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- us-east-2/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |-- production/ # defines configurations common across all production deployments
-|   |   |-- terragrunt.hcl 
-|   |   |-- us-east-1/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- us-east-2/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- us-west-2/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-```
-
-One day, business comes along and requires that you create two brand new regions in Europe,
-specifically in the EU-West-1 and EU-Central-1 AWS regions. These environments should mirror the
-US-East-1 and US-East-2 regions respectively.
-
-To accomplish this, you would need to go to each of those ~100 repositories and add a set of files
-looking something like this:
-
-```
-|   |   |-- eu-west-1/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- eu-central-1/
-|   |   |   |-- s3/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-```
-
-The pull requests for these files would then need to be reviewed and individually merged. That's a
-lot of work!
-
-### Imagine a better way
-
-Let's consider instead a different approach. Instead of maintaining individual files and folder for
-each stage and environment, we instead have the concept of a _default_ configuration, which is used,
-well, by default! In other words, unless we specifically indicate we want to override the default
-values, our system will use the defaults when deploying to any stage or environment, and it's the
-deployment pipeline itself that is responsible for knowing what stages and environments exist.
-
-The folder structure is much simpler in this way, because in many cases the values for the different
-configurations don't vary.
-
-```
-|-- infrastructure/
-|   |-- default/
-|   |   |-- terragrunt.hcl # Defines common things like state file paths
-|   |   |-- s3/
-|   |   |   |-- terragrunt.hcl
-|   |   |-- database/
-|   |   |   |-- terragrunt.hcl
-|   |-- production/
-|   |   |-- terragrunt.hcl # Production specific overrides
-|   |   |-- us-east-1/
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl # Different scale levels for database
-|   |   |-- us-east-2/
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-|   |   |-- us-west-2/
-|   |   |   |-- database/
-|   |   |   |   |-- terragrunt.hcl
-```
-
-As you can see, the only places where additional files are required are in cases where values differ
-(something that's probably more common in production stages).
-
-In addition, when you need to provision a new stage or environment, all you need to do is tell the
-deployment pipeline it's required, and then run the deployment across all your microservices. New
-infrstructure will get deployed with the default values, no pull requestes required.
-
-## Goals of the project
-
-This project aims to provide a way to implement the above described pattern _from the point of
-combining the default and overlay values forward_. To be more specific, here's a diagram of the various components of the solution.
+* A developer opens a pull request that contains changes to infrastructure code.
+* The Action builds a tree of changed deployments and any of their dependents,      using
+  Terragrunt's built in dependency framework and the
+  [`graph-dependencies`](https://terragrunt.gruntwork.io/docs/reference/cli-options/#graph-dependencies)
+  CLI option.
+* The Action generates a Terraform plan for each of these deployments and posts the results back to
+  the pull request as a comment. In addition, the plan binary file is stored as a build artifact,
+  with the pull request comment containing the link to the artifact. If any plan generates and
+  error, that is posted to the pull request as well.
 
 ```mermaid
-sequenceDiagram
-  participant api as Stage / Environment API
-  participant gha as GitHub Actions
-  participant repo as GitHub Repository
-  participant aws as AWS Cloud
-  gha->>api: Retrieves stage / environment values for current microservice
-  gha->>repo: Retrieves default configuration and any overlays
-  gha->>gha: Combines default and overlays into unified configuration
-  gha->>aws: Applies unified configuration
+flowchart TD
+  subgraph GitHub
+    pr(Pull Request)
+  end
+  subgraph Developer
+    openpr(1. Open pull request) --> pr
+  end
+  pr --> genplan
+  subgraph GitHub Action
+   genplan(2. Generate plans for deployment)
+   genplan --> postplan(3. Post plan to pull request)
+  end
+  postplan --> pr
 ```
 
-This project aims to provide a solution from the second step forward, while also providing a
-(hopefully fairly) extensible way to interact with whatever component handles the first step of
-retrieving the stage and environment values. Because the logic and implementation details for this
-first step might vary extensively depending upon things specific to your implementation, I did not
-want to restrict or otherwise prescribe the manner in which this was done.
+### Apply Stage
 
-## Reference Implementation
+* One or more approvers review the changed code and attached Terraform plans and approves the pull request.
+* A developer comments on the pull request, asking that a particular deployment be applied (using a
+  given ChatOps style syntax).
+* The Action ensures that the pull request is in a properly approved state using the GitHub API.
+  (This ensures that we use GitHub's own definition of what is "properly approved" based on internal
+  rules like branch protection policies).
+* The Action retrieves the stored binary plan file and attempts to apply it. The result of this
+  apply is used to update the pull request comment created in the step that generates plans (to
+  avoid long strings of comments in the pull request). If the apply fails, a new plan is generated
+  automatically and the comment updated to match.
 
-A reference implementation of this solution might look like this.
-
-* An organization creates a [re-usable GitHub Actions
-  Workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows) that does the
-  following:
-  * Calls a proprietary API or other system, passing in the current microservice name, and expecting
-    back an array of objects looking something like this:
-    ```json
-    {
-      "stages": [
-        "development": {
-          "environments": [
-            "us-east-1": {
-              "includes": {},
-              "extraValues": {} 
-            },
-            "us-east-2": {
-              "includes": {},
-              "extraValues": {} 
-            }
-          ]
-        },
-        "staging": {
-          "environments": [
-            "us-east-1": {
-              "includes": {},
-              "extraValues": {} 
-            },
-            "us-east-2": {
-              "includes": {},
-              "extraValues": {} 
-            }
-          ]
-        },
-        "production": {
-          "environments": [
-            "us-east-1": {
-              "includes": {},
-              "extraValues": {} 
-            },
-            "us-east-2": {
-              "includes": {},
-              "extraValues": {} 
-            },
-            "us-west-2": {
-              "includes": {},
-              "extraValues": {} 
-            },
-          ]
-        },
-      ]
-    }
-    ```
-  * Calls a [matrix](https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs)
-    with each item being a combination of a stage and an environment. The job checks out the source
-    code, assumes an AWS IAM Role, and calls the Action provided by this project, passing in the
-    `environment` object from the above API result. 
-    
-    **Note:** Ideally you'd do this for one Stage at a time, likely triggered by different things.
-    For example, you might deploy to the `development` stage on every merge to `main`, the `staging`
-    stage on a pre-release, and `production` on a release being finalized.
+```mermaid
+flowchart TD
+  subgraph GitHub
+    pr(Pull Request)
+  end
+  subgraph Approvers
+    approve-pr(1. Approve pull request) --> pr
+  end
+  subgraph Developer
+    apply-comment(2. Comments on pull request to apply a single deployment) --> pr
+  end
+  pr --> ensure-approved
+  subgraph GitHub Action
+    ensure-approved(3. Ensures the pull request is properly approved)
+    ensure-approved --> apply-dep(4. Attempts to apply previously stored plan file)
+    apply-dep --> update-pr(5. Updates PR with result)
+    update-pr --> pr
+    update-pr --> check-success(5. Checks if apply succeeded)
+    check-success --> Yes
+    check-success --> No
+    No --> gen-newplan(6. Generates new plan)
+    gen-newplan --> pr
+  end
+```
