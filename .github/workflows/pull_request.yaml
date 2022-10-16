@@ -4,6 +4,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      TERRAGRUNT_LOG_LEVEL: debug
     steps:
       - uses: actions/checkout@v3
       - name: plan test
