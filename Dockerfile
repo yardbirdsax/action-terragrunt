@@ -23,7 +23,6 @@ RUN git clone --depth=1 https://github.com/tfutils/tfenv.git $HOME/.tfenv && \
     ln -s $HOME/.tfenv/bin/tfenv /usr/local/bin/tfenv
 RUN tfenv install latest
 RUN tfenv use latest
-WORKDIR /app
 COPY --from=builder /app/app ./
 
-ENTRYPOINT [ "/app/app" ]
+ENTRYPOINT [ "/app" ]
