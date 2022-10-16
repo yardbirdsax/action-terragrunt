@@ -82,9 +82,25 @@ func NewTerragrunt(opts ...terragruntOptFns) (*Terragrunt, error) {
 func (t *Terragrunt) run(command string, arguments ...string) (*TerragruntOutput, error) {
 	output := &TerragruntOutput{}
 
+	gitCommand := "git"
+	gitArguments := []string{
+		"config",
+		"--global",
+		"--add",
+		"safe.directory",
+		"/github/workspace",
+	}
+	execOutput, exitCode, err := t.exec.ExecCommand(gitCommand, true, gitArguments...)
+	if err != nil || exitCode != terragruntExitCodeNoChanges {
+		output.Output = strings.Split(execOutput, "\n")
+		output.ExitCode = exitCode
+		err = fmt.Errorf("Error configuring Git safe.directory setting (exit code: %d): %v", exitCode, err)
+		return output, err
+	}
+
 	combinedArguments := []string{command, terragruntWorkingDirectoryArgument, t.workingDirectory}
 	combinedArguments = append(combinedArguments, arguments...)
-	execOutput, exitCode, err := t.exec.ExecCommand(terragruntDefaultBinary, true, combinedArguments...)
+	execOutput, exitCode, err = t.exec.ExecCommand(terragruntDefaultBinary, true, combinedArguments...)
 	output.Output = strings.Split(execOutput, "\n")
 	output.ExitCode = exitCode
 	return output, err

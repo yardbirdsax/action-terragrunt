@@ -13,6 +13,17 @@ import (
 	mockgithub "github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
 )
 
+var (
+	expectedGitCommand string = "git"
+	expectedGitArguments []string = []string{
+		"config",
+		"--global",
+		"--add",
+		"safe.directory",
+		"/github/workspace",
+	}
+)
+
 func TestWithExecutor(t *testing.T) {
 	Convey("WithExecutor", t, func() {
 		ctrl := gomock.NewController(t)
@@ -116,7 +127,8 @@ func TestRun(t *testing.T) {
 			"world",
 		}
 		expectedError := fmt.Errorf("this is an error")
-		mockExecutor.EXPECT().ExecCommand(terragruntDefaultBinary, true, expectedArguments).Return(strings.Join(expectedOutput, "\n"), terragruntExitCodeWithChanges, expectedError)
+		mockExecutor.EXPECT().ExecCommand(terragruntDefaultBinary, true, expectedArguments).Return(strings.Join(expectedOutput, "\n"), terragruntExitCodeWithChanges, expectedError).Times(1)
+		mockExecutor.EXPECT().ExecCommand(expectedGitCommand, true, expectedGitArguments).Return("", terragruntExitCodeNoChanges, nil).Times(1)
 		terragrunt, err := NewTerragrunt(WithExec(mockExecutor), WithWorkingDirectory(expectedWorkingDirectory))
 		So(err, ShouldBeNil)
 
@@ -152,6 +164,7 @@ func TestPlan(t *testing.T) {
 			"world",
 		}
 		unexpectedError := fmt.Errorf("i'm an error that you shouldn't see")
+		mockExecutor.EXPECT().ExecCommand(expectedGitCommand, true, expectedGitArguments).Return("", terragruntExitCodeNoChanges, nil).Times(1)
 		mockExecutor.EXPECT().ExecCommand(terragruntDefaultBinary, true, expectedArguments).Return(strings.Join(expectedOutput, "\n"), terragruntExitCodeWithChanges, unexpectedError)
 		terragrunt, err := NewTerragrunt(WithExec(mockExecutor), WithWorkingDirectory(expectedWorkingDirectory))
 		So(err, ShouldBeNil)
@@ -171,6 +184,7 @@ func TestPlan(t *testing.T) {
 		})
 
 		Convey("should not return error when the exit code is 0", func() {
+			mockExecutor.EXPECT().ExecCommand(expectedGitCommand, true, expectedGitArguments).Return("", terragruntExitCodeNoChanges, nil).Times(1)
 			mockExecutor.EXPECT().ExecCommand(terragruntDefaultBinary, true, expectedArguments).Return(strings.Join(expectedOutput, "\n"), terragruntExitCodeNoChanges, nil)
 
 			terragrunt, _ := NewTerragrunt(WithExec(mockExecutor), WithWorkingDirectory(expectedWorkingDirectory))
@@ -199,6 +213,7 @@ func TestApply(t *testing.T) {
 			"hello",
 			"world",
 		}
+		mockExecutor.EXPECT().ExecCommand(expectedGitCommand, true, expectedGitArguments).Return("", terragruntExitCodeNoChanges, nil).Times(1)
 		mockExecutor.EXPECT().ExecCommand(terragruntDefaultBinary, true, expectedArguments).Return(strings.Join(expectedOutput, "\n"), terragruntExitCodeNoChanges, nil)
 		terragrunt, err := NewTerragrunt(WithExec(mockExecutor), WithWorkingDirectory(expectedWorkingDirectory))
 		So(err, ShouldBeNil)

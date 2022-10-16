@@ -15,7 +15,7 @@ func NewExecutor() *Executor {
 
 func (*Executor) ExecCommand(command string, writeToConsole bool, args ...string) (output string, exitCode int, err error) {
 	var buffer bytes.Buffer
-	exitCode = -1
+	exitCode = 0
 	stdOutWriters := []io.Writer{&buffer}
 	stdErrWriters := []io.Writer{&buffer}
 	if writeToConsole {
