@@ -1,0 +1,20 @@
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      TERRAGRUNT_LOG_LEVEL: debug
+    steps:
+      - uses: actions/checkout@v3
+      - name: plan test
+        uses: ./
+        with:
+          terraform-command: plan
+          base-directory: ./integration/terragrunt/
+      - name: apply test
+        uses: ./
+        with:
+          terraform-command: apply
+          base-directory: ./integration/terragrunt/
