@@ -16,11 +16,17 @@ func NewClientFromAction(githubinterface.Action) (githubinterface.Client, error)
 	return client, nil
 }
 
-type Client struct {}
+type Client struct {
+	pullRequestService githubinterface.PullRequestService
+}
 
 func (c *Client) CreateCommentFromPlan(ctx context.Context, planOutput []string) (*github.PullRequestComment, *github.Response, error) {
-	comment := &github.PullRequestComment{}
+	commentBody := "something"
+	comment := &github.PullRequestComment{
+		Body: &commentBody,
+	}
 	response := &github.Response{}
+	c.pullRequestService.CreateComment(context.TODO(), "something", "something", 1, comment)
 	log.Println("WARN: CreateCommentFromPlan method not yet implemented.")
 	return comment, response, nil
 }
