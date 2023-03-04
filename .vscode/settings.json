@@ -3,4 +3,7 @@
   "rewrap.wrappingColumn": 100,
   "rewrap.reformat": true,
   "rewrap.wholeComment": true,
+  "yaml.schemas": {
+    "https://json.schemastore.org/dependabot-2.0.json": "file:///Users/joshuafeierman/repos/action-terragrunt/.github/dependabot.yaml"
+  },
 }

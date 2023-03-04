@@ -40,20 +40,20 @@ func execute(tg terragruntinterface.Terragrunt, config *config.Config, githubCli
 	switch config.Command() {
 	case terragrunt.TerragruntCommandPlan:
 		output, err := tg.Plan()
-		if (err != nil) {
+		if err != nil {
 			log.Fatalf("error executing Terragrunt plan: %v", err)
 		}
-		if (output.HasChanges) {
+		if output.HasChanges {
 			if config.GitHubContext().EventName == "pull_request" {
-				githubClient.CreateCommentFromPlan(ctx, output.TerragruntOutput.Output)
+				githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
 			}
 		}
 	case terragrunt.TerragruntCommandApply:
 		planOutput, err := tg.Plan()
-		if (err != nil) {
+		if err != nil {
 			log.Fatalf("error executing Terragrunt plan: %v", err)
 		}
-		if (planOutput.HasChanges) {
+		if planOutput.HasChanges {
 			applyOutput, err := tg.Apply()
 			if err != nil {
 				log.Fatalf("error executing Terragrunt apply: %v", err)

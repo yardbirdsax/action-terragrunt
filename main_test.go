@@ -24,12 +24,10 @@ func TestExecute(t *testing.T) {
 
 			Convey("pull_request", func() {
 				eventName := "pull_request"
-				eventData := map[string]interface{}{
-
-				}
+				eventData := map[string]interface{}{}
 				gitHubContext := &githubactions.GitHubContext{
 					EventName: eventName,
-					Event: eventData,
+					Event:     eventData,
 				}
 				mockAction.EXPECT().GetInput(config.ActionTerraformCommand).Return(expectedTerraformCommand).After(
 					mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory),
@@ -41,16 +39,16 @@ func TestExecute(t *testing.T) {
 
 				Convey("when plan shows changes", func() {
 					expectedPlanFilePath := "/path/to/plan/file"
-					expectedCommandOutput := []string{"plan","out"}
+					expectedCommandOutput := []string{"plan", "out"}
 					expectedPlanOutput := &terragrunt.TerragruntPlanOutput{
-						HasChanges: true,
+						HasChanges:   true,
 						PlanFilePath: expectedPlanFilePath,
 						TerragruntOutput: terragrunt.TerragruntOutput{
 							Output: expectedCommandOutput,
 						},
 					}
 					mockTerragrunt.EXPECT().Plan().Times(1).Return(expectedPlanOutput, nil)
-					mockGitHubClient.EXPECT().CreateCommentFromPlan(gomock.Any(), expectedCommandOutput).Times(1)
+					mockGitHubClient.EXPECT().CreateCommentFromOutput(gomock.Any(), expectedCommandOutput, expectedBaseDirectory).Times(1)
 					execute(mockTerragrunt, config, mockGitHubClient)
 				})
 
@@ -69,12 +67,10 @@ func TestExecute(t *testing.T) {
 			expectedTerraformCommand := "apply"
 
 			eventName := "pull_request"
-			eventData := map[string]interface{}{
-
-			}
+			eventData := map[string]interface{}{}
 			gitHubContext := &githubactions.GitHubContext{
 				EventName: eventName,
-				Event: eventData,
+				Event:     eventData,
 			}
 			mockAction.EXPECT().GetInput(config.ActionTerraformCommand).Return(expectedTerraformCommand).After(
 				mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory),

@@ -1,10 +1,10 @@
-## {{ .Title }}
+## Terragrunt Execution for `{{ .Path }}`
 
 <details>
-  <summary>{{ .Path }}</summary>
+  <summary>{{ .Summary }}</summary>
   <p>
   ```diff
-  {{ .Output }}
+  {{ .Output | indent 2 }}
   ```
   </p>
 </details>

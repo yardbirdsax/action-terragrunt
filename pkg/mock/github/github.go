@@ -127,18 +127,18 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
-// CreateCommentFromPlan mocks base method.
-func (m *MockClient) CreateCommentFromPlan(ctx context.Context, planText []string) (*github.PullRequestComment, *github.Response, error) {
+// CreateCommentFromOutput mocks base method.
+func (m *MockClient) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.PullRequestComment, *github.Response, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateCommentFromPlan", ctx, planText)
+	ret := m.ctrl.Call(m, "CreateCommentFromOutput", ctx, planOutput, path)
 	ret0, _ := ret[0].(*github.PullRequestComment)
 	ret1, _ := ret[1].(*github.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2
 }
 
-// CreateCommentFromPlan indicates an expected call of CreateCommentFromPlan.
-func (mr *MockClientMockRecorder) CreateCommentFromPlan(ctx, planText interface{}) *gomock.Call {
+// CreateCommentFromOutput indicates an expected call of CreateCommentFromOutput.
+func (mr *MockClientMockRecorder) CreateCommentFromOutput(ctx, planOutput, path interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCommentFromPlan", reflect.TypeOf((*MockClient)(nil).CreateCommentFromPlan), ctx, planText)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCommentFromOutput", reflect.TypeOf((*MockClient)(nil).CreateCommentFromOutput), ctx, planOutput, path)
 }

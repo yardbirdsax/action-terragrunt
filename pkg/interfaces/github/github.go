@@ -25,5 +25,5 @@ type PullRequestService interface {
 
 // Client is an interface mirroring the internal GitHub wrapper client.
 type Client interface {
-	CreateCommentFromPlan(ctx context.Context, planText []string) (*github.PullRequestComment, *github.Response, error)
+	CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.PullRequestComment, *github.Response, error)
 }

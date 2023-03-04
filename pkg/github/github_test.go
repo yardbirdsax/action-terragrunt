@@ -5,17 +5,15 @@ import (
 	"strings"
 	"testing"
 
-	gogithub "github.com/google/go-github/v47/github"
 	"github.com/golang/mock/gomock"
+	gogithub "github.com/google/go-github/v47/github"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
 	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
 )
 
-func TestCreateCommentFromPlan(t *testing.T) {
-	Convey("CreateCommentFromPlan", t, func() {
-		rawPlanOutput := `
-Initializing the backend...
+const (
+	rawPlanOutput = `Initializing the backend...
 |
 | Initializing provider plugins...
 | - Finding latest version of hashicorp/local...
@@ -56,21 +54,26 @@ Initializing the backend...
 |
 | Changes to Outputs:
 |   + output = "hello"
-		`
-		planOutput := &terragrunt.TerragruntPlanOutput {
+`
+)
+
+func TestCreateCommentFromPlan(t *testing.T) {
+	Convey("CreateCommentFromPlan", t, func() {
+		planOutput := &terragrunt.TerragruntPlanOutput{
 			TerragruntOutput: terragrunt.TerragruntOutput{
 				Output: strings.Split(rawPlanOutput, "\n"),
+				Path:   "some/path",
 			},
 		}
-		expectedCommentText := "## Title \n" +
+		expectedCommentText := "## Terragrunt Execution for `some/path`\n\n" +
 			"<details>\n" +
-			"  <summary>something</summary>\n" +
+			"  <summary>1 to add, 0 to change, 0 to destroy</summary>\n" +
 			"  <p>\n" +
 			"  ```diff\n" +
-			rawPlanOutput + "\n" +
+			"  " + indent(2, rawPlanOutput) + "\n" +
 			"  ```\n" +
-			"	 </p>\n" +
-			"</details"
+			"  </p>\n" +
+			"</details>"
 		ctrl := gomock.NewController(t)
 		mockPullRequestService := github.NewMockPullRequestService(ctrl)
 		client := &Client{
@@ -85,6 +88,19 @@ Initializing the backend...
 			},
 		)
 
-		client.CreateCommentFromPlan(context.TODO(), planOutput.Output)
+		_, _, err := client.CreateCommentFromOutput(context.TODO(), planOutput.Output, planOutput.Path)
+		So(err, ShouldBeNil)
+	})
+}
+
+func TestGetSummaryFromPlanOutput(t *testing.T) {
+	Convey("GetSummaryFromPlanOutput", t, func() {
+		expectedOutput := "1 to add, 0 to change, 0 to destroy"
+
+		actualOutput := getSummaryFromPlanOutput(rawPlanOutput)
+
+		Convey("should give the right output", func() {
+			So(actualOutput, ShouldEqual, expectedOutput)
+		})
 	})
 }

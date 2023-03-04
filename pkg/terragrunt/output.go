@@ -8,7 +8,8 @@ type TerragruntOutput struct {
 	// The combined standard output and input of Terragrunt
 	Output []string
 
-
+	// The path at which Terragrunt was executed.
+	Path string
 }
 
 type TerragruntPlanOutput struct {
