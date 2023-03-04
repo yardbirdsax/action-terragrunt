@@ -14,6 +14,8 @@ import (
 
 	"github.com/google/go-github/v47/github"
 	githubinterface "github.com/yardbirdsax/action-terragrunt/pkg/interfaces/github"
+
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -21,19 +23,49 @@ var (
 	commentTemplate string
 )
 
-func NewClientFromAction(githubinterface.Action) (githubinterface.Client, error) {
-	ghClient := github.NewClient(nil)
+type Client struct {
+	issueService      githubinterface.IssueService
+	owner             string
+	repository        string
+	pullRequestNumber int
+	token             string
+}
+
+func NewClientFromAction(action githubinterface.Action) (githubinterface.Client, error) {
+
+	actionContext, err := action.Context()
+	if err != nil {
+		return nil, fmt.Errorf("error getting GitHub context: %w", err)
+	}
+	actionRepository := strings.Split(actionContext.Repository, "/")
+	if len(actionRepository) < 2 {
+		return nil, fmt.Errorf("action repository string (%s) is not of the correct pattern", actionContext.Repository)
+	}
 	client := &Client{
-		pullRequestService: ghClient.PullRequests,
+		owner:      actionRepository[0],
+		repository: actionRepository[1],
+		token:      action.GetInput("token"),
+	}
+
+	ctx := context.Background()
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{
+			AccessToken: client.token,
+		},
+	)
+	tc := oauth2.NewClient(ctx, ts)
+	ghClient := github.NewClient(tc)
+	client.issueService = ghClient.Issues
+
+	switch actionContext.EventName {
+	case "pull_request":
+		client.pullRequestNumber = int(actionContext.Event["number"].(float64))
 	}
 	return client, nil
 }
 
-type Client struct {
-	pullRequestService githubinterface.PullRequestService
-}
-
-func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.PullRequestComment, *github.Response, error) {
+func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.IssueComment, *github.Response, error) {
+	cleanedPlanOutput := strings.Join(cleanOutput(planOutput), "\n")
 	buf := bytes.Buffer{}
 	commentData := struct {
 		Path    string
@@ -41,8 +73,8 @@ func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []strin
 		Output  string
 	}{
 		Path:    path,
-		Output:  strings.Join(cleanOutput(planOutput), "\n"),
-		Summary: getSummaryFromPlanOutput(strings.Join(planOutput, "\n")),
+		Output:  cleanedPlanOutput,
+		Summary: getSummaryFromPlanOutput(cleanedPlanOutput),
 	}
 	commentTemplate := template.Must(template.New("comment").
 		Funcs(template.FuncMap{"indent": indent}).
@@ -53,24 +85,24 @@ func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []strin
 		return nil, nil, fmt.Errorf("error executing comment template: %w", err)
 	}
 	commentBody := buf.String()
-	comment := &github.PullRequestComment{
+	comment := &github.IssueComment{
 		Body: &commentBody,
 	}
-	return c.pullRequestService.CreateComment(context.TODO(), "something", "something", 1, comment)
+	return c.issueService.CreateComment(context.TODO(), c.owner, c.repository, c.pullRequestNumber, comment)
 }
 
 func cleanOutput(output []string) []string {
 	cleanedOutput := []string{}
 
 	for _, s := range output {
-		cleaned := strings.TrimSpace(s)
+		cleaned := regexp.MustCompile(`\x1b\[[0-9;]*m`).ReplaceAllString(strings.TrimSpace(s), "")
 		cleanedOutput = append(cleanedOutput, cleaned)
 	}
 	return cleanedOutput
 }
 
 func getSummaryFromPlanOutput(output string) string {
-	re := regexp.MustCompile(`\|\s+Plan:\s+(\d+ to add, \d+ to change, \d+ to destroy)`)
+	re := regexp.MustCompile(`Plan:\s+(\d+ to add, \d+ to change, \d+ to destroy)`)
 	submatches := re.FindStringSubmatch(output)
 	if len(submatches) > 1 {
 		return submatches[1]

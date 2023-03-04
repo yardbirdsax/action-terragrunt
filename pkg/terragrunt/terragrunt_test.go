@@ -14,7 +14,7 @@ import (
 )
 
 var (
-	expectedGitCommand string = "git"
+	expectedGitCommand   string   = "git"
 	expectedGitArguments []string = []string{
 		"config",
 		"--global",
@@ -225,6 +225,9 @@ func TestApply(t *testing.T) {
 		})
 		Convey("should return the expected exit code", func() {
 			So(output.ExitCode, ShouldEqual, terragruntExitCodeNoChanges)
+		})
+		Convey("should not return an error", func() {
+			So(err, ShouldBeNil)
 		})
 	})
 }

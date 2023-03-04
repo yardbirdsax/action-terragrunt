@@ -104,6 +104,45 @@ func (mr *MockPullRequestServiceMockRecorder) CreateComment(ctx, owner, repo, nu
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockPullRequestService)(nil).CreateComment), ctx, owner, repo, number, comment)
 }
 
+// MockIssueService is a mock of IssueService interface.
+type MockIssueService struct {
+	ctrl     *gomock.Controller
+	recorder *MockIssueServiceMockRecorder
+}
+
+// MockIssueServiceMockRecorder is the mock recorder for MockIssueService.
+type MockIssueServiceMockRecorder struct {
+	mock *MockIssueService
+}
+
+// NewMockIssueService creates a new mock instance.
+func NewMockIssueService(ctrl *gomock.Controller) *MockIssueService {
+	mock := &MockIssueService{ctrl: ctrl}
+	mock.recorder = &MockIssueServiceMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockIssueService) EXPECT() *MockIssueServiceMockRecorder {
+	return m.recorder
+}
+
+// CreateComment mocks base method.
+func (m *MockIssueService) CreateComment(ctx context.Context, owner, repo string, number int, comment *github.IssueComment) (*github.IssueComment, *github.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateComment", ctx, owner, repo, number, comment)
+	ret0, _ := ret[0].(*github.IssueComment)
+	ret1, _ := ret[1].(*github.Response)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// CreateComment indicates an expected call of CreateComment.
+func (mr *MockIssueServiceMockRecorder) CreateComment(ctx, owner, repo, number, comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockIssueService)(nil).CreateComment), ctx, owner, repo, number, comment)
+}
+
 // MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller
@@ -128,10 +167,10 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // CreateCommentFromOutput mocks base method.
-func (m *MockClient) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.PullRequestComment, *github.Response, error) {
+func (m *MockClient) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.IssueComment, *github.Response, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateCommentFromOutput", ctx, planOutput, path)
-	ret0, _ := ret[0].(*github.PullRequestComment)
+	ret0, _ := ret[0].(*github.IssueComment)
 	ret1, _ := ret[1].(*github.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

@@ -11,19 +11,12 @@ inputs:
       repository.
     default: "."
     required: false
-  additional-values:
-    description: |
-      A JSON object of key/value pairs that are passed to the templating process. (Not yet implemented.)
-    required: false
-    default: "{}"
-  includes:
-    description: |
-      A JSON object of keys/paths to Terragrunt files that will be included in the final generated file
-      via `include` blocks. The key is used to label the `include` block and must be unique. (Not
-      yet implemented.)
-    required: false
-    default: "{}"
   terraform-command:
     description: |
       The Terraform command to run.
+    required: true
+  token:
+    description: |
+      The token to use when interacting with the GitHub API. This can generally be set to the
+      default token.
     required: true

@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	gogithub "github.com/google/go-github/v47/github"
+	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
 	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
@@ -57,6 +58,35 @@ const (
 `
 )
 
+func TestNewClientFromAction(t *testing.T) {
+	Convey("NewClientFromAction", t, func() {
+		t.Setenv("INPUT_TOKEN", "token")
+		ctrl := gomock.NewController(t)
+		mockAction := github.NewMockAction(ctrl)
+		mockAction.EXPECT().Context().Times(1).Return(&githubactions.GitHubContext{
+			Repository: "owner/repo",
+			EventName:  "pull_request",
+			Event: map[string]any{
+				"number": float64(2),
+			},
+		}, nil)
+		mockAction.EXPECT().GetInput("token").Times(1).Return("token")
+
+		clientInterface, err := NewClientFromAction(mockAction)
+
+		Convey("should not return an error", func() {
+			So(err, ShouldBeNil)
+		})
+		client := clientInterface.(*Client)
+		Convey("should have the right properties", func() {
+			So(client.owner, ShouldEqual, "owner")
+			So(client.repository, ShouldEqual, "repo")
+			So(client.pullRequestNumber, ShouldEqual, 2)
+			So(client.token, ShouldEqual, "token")
+		})
+	})
+}
+
 func TestCreateCommentFromPlan(t *testing.T) {
 	Convey("CreateCommentFromPlan", t, func() {
 		planOutput := &terragrunt.TerragruntPlanOutput{
@@ -67,20 +97,21 @@ func TestCreateCommentFromPlan(t *testing.T) {
 		}
 		expectedCommentText := "## Terragrunt Execution for `some/path`\n\n" +
 			"<details>\n" +
-			"  <summary>1 to add, 0 to change, 0 to destroy</summary>\n" +
-			"  <p>\n" +
+			"  <summary>1 to add, 0 to change, 0 to destroy</summary>\n\n" +
 			"  ```diff\n" +
 			"  " + indent(2, rawPlanOutput) + "\n" +
-			"  ```\n" +
-			"  </p>\n" +
+			"  ```\n\n" +
 			"</details>"
 		ctrl := gomock.NewController(t)
-		mockPullRequestService := github.NewMockPullRequestService(ctrl)
+		mockIssueService := github.NewMockIssueService(ctrl)
 		client := &Client{
-			pullRequestService: mockPullRequestService,
+			issueService:      mockIssueService,
+			owner:             "owner",
+			repository:        "repo",
+			pullRequestNumber: 2,
 		}
-		mockPullRequestService.EXPECT().CreateComment(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).DoAndReturn(
-			func(ctx context.Context, owner string, repo string, number int, comment *gogithub.PullRequestComment) (interface{}, interface{}, interface{}) {
+		mockIssueService.EXPECT().CreateComment(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
+			func(ctx context.Context, owner string, repo string, number int, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
 				Convey("should use the right comment text", func() {
 					So(*comment.Body, ShouldEqual, expectedCommentText)
 				})

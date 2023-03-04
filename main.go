@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/sethvargo/go-githubactions"
@@ -35,17 +36,23 @@ func main() {
 
 func execute(tg terragruntinterface.Terragrunt, config *config.Config, githubClient githubinterface.Client) {
 	ctx := context.TODO()
+	action := githubactions.New()
 	log.Println("command is: ", config.Command())
 	log.Println("base directory is: ", config.BaseDirectory())
 	switch config.Command() {
 	case terragrunt.TerragruntCommandPlan:
 		output, err := tg.Plan()
+		log.Printf("output is: %v", output)
 		if err != nil {
 			log.Fatalf("error executing Terragrunt plan: %v", err)
 		}
 		if output.HasChanges {
+			log.Printf("event name is: %s", config.GitHubContext().EventName)
 			if config.GitHubContext().EventName == "pull_request" {
-				githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
+				_, _, err = githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
+				if err != nil {
+					action.Fatalf(fmt.Errorf("error creating GitHub comment: %w", err).Error())
+				}
 			}
 		}
 	case terragrunt.TerragruntCommandApply:

@@ -20,8 +20,10 @@ jobs:
         with:
           terraform-command: plan
           base-directory: ./integration/terragrunt/
+          token: ${{ secrets.GITHUB_TOKEN }}
       - name: apply test
         uses: ./
         with:
           terraform-command: apply
           base-directory: ./integration/terragrunt/
+          token: ${{ secrets.GITHUB_TOKEN }}

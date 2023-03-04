@@ -23,7 +23,12 @@ type PullRequestService interface {
 	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.PullRequestComment) (*github.PullRequestComment, *github.Response, error)
 }
 
+// IssueService is a wrapper around the GitHub IssueService exposed by "github.com/google/go-github/
+type IssueService interface {
+	CreateComment(ctx context.Context, owner string, repo string, number int, comment *github.IssueComment) (*github.IssueComment, *github.Response, error)
+}
+
 // Client is an interface mirroring the internal GitHub wrapper client.
 type Client interface {
-	CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.PullRequestComment, *github.Response, error)
+	CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.IssueComment, *github.Response, error)
 }
