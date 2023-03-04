@@ -22,7 +22,10 @@ var (
 )
 
 func NewClientFromAction(githubinterface.Action) (githubinterface.Client, error) {
-	client := &Client{}
+	ghClient := github.NewClient(nil)
+	client := &Client{
+		pullRequestService: ghClient.PullRequests,
+	}
 	return client, nil
 }
 
