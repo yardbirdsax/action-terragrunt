@@ -143,6 +143,38 @@ func (mr *MockIssueServiceMockRecorder) CreateComment(ctx, owner, repo, number, 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockIssueService)(nil).CreateComment), ctx, owner, repo, number, comment)
 }
 
+// EditComment mocks base method.
+func (m *MockIssueService) EditComment(ctx context.Context, owner, repo string, commentID int64, comment *github.IssueComment) (*github.IssueComment, *github.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "EditComment", ctx, owner, repo, commentID, comment)
+	ret0, _ := ret[0].(*github.IssueComment)
+	ret1, _ := ret[1].(*github.Response)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// EditComment indicates an expected call of EditComment.
+func (mr *MockIssueServiceMockRecorder) EditComment(ctx, owner, repo, commentID, comment interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "EditComment", reflect.TypeOf((*MockIssueService)(nil).EditComment), ctx, owner, repo, commentID, comment)
+}
+
+// ListComments mocks base method.
+func (m *MockIssueService) ListComments(ctx context.Context, owner, repo string, number int, opts *github.IssueListCommentsOptions) ([]*github.IssueComment, *github.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListComments", ctx, owner, repo, number, opts)
+	ret0, _ := ret[0].([]*github.IssueComment)
+	ret1, _ := ret[1].(*github.Response)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ListComments indicates an expected call of ListComments.
+func (mr *MockIssueServiceMockRecorder) ListComments(ctx, owner, repo, number, opts interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListComments", reflect.TypeOf((*MockIssueService)(nil).ListComments), ctx, owner, repo, number, opts)
+}
+
 // MockClient is a mock of Client interface.
 type MockClient struct {
 	ctrl     *gomock.Controller

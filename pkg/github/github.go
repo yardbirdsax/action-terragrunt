@@ -66,15 +66,18 @@ func NewClientFromAction(action githubinterface.Action) (githubinterface.Client,
 
 func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []string, path string) (*github.IssueComment, *github.Response, error) {
 	cleanedPlanOutput := strings.Join(cleanOutput(planOutput), "\n")
+	title := fmt.Sprintf("Terragrunt Execution for `%s`", path)
 	buf := bytes.Buffer{}
 	commentData := struct {
 		Path    string
 		Summary string
 		Output  string
+		Title   string
 	}{
 		Path:    path,
 		Output:  cleanedPlanOutput,
 		Summary: getSummaryFromPlanOutput(cleanedPlanOutput),
+		Title:   title,
 	}
 	commentTemplate := template.Must(template.New("comment").
 		Funcs(template.FuncMap{"indent": indent}).
@@ -88,7 +91,23 @@ func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []strin
 	comment := &github.IssueComment{
 		Body: &commentBody,
 	}
-	return c.issueService.CreateComment(context.TODO(), c.owner, c.repository, c.pullRequestNumber, comment)
+
+	existingComments, _, err := c.issueService.ListComments(context.TODO(), c.owner, c.repository, c.pullRequestNumber, nil)
+	if err != nil {
+		return nil, nil, fmt.Errorf("error retrieving existing issue comments: %w", err)
+	}
+	var existingCommentID int64 = 0
+	for _, c := range existingComments {
+		if strings.Contains(*c.Body, title) {
+			existingCommentID = *c.ID
+		}
+	}
+
+	if existingCommentID != 0 {
+		return c.issueService.EditComment(context.TODO(), c.owner, c.repository, existingCommentID, comment)
+	} else {
+		return c.issueService.CreateComment(context.TODO(), c.owner, c.repository, c.pullRequestNumber, comment)
+	}
 }
 
 func cleanOutput(output []string) []string {

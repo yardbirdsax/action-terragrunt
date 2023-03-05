@@ -110,17 +110,52 @@ func TestCreateCommentFromPlan(t *testing.T) {
 			repository:        "repo",
 			pullRequestNumber: 2,
 		}
-		mockIssueService.EXPECT().CreateComment(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
-			func(ctx context.Context, owner string, repo string, number int, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
-				Convey("should use the right comment text", func() {
-					So(*comment.Body, ShouldEqual, expectedCommentText)
-				})
-				return comment, nil, nil
-			},
-		)
+		Convey("when there is no existing comment", func() {
+			mockIssueService.EXPECT().ListComments(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int, opts *gogithub.IssueListCommentsOptions) (interface{}, interface{}, interface{}) {
+					return []*gogithub.IssueComment{}, nil, nil
+				},
+			)
+			mockIssueService.EXPECT().CreateComment(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
+					Convey("should use the right comment text", func() {
+						So(*comment.Body, ShouldEqual, expectedCommentText)
+					})
+					return comment, nil, nil
+				},
+			)
 
-		_, _, err := client.CreateCommentFromOutput(context.TODO(), planOutput.Output, planOutput.Path)
-		So(err, ShouldBeNil)
+			_, _, err := client.CreateCommentFromOutput(context.TODO(), planOutput.Output, planOutput.Path)
+
+			So(err, ShouldBeNil)
+		})
+		Convey("when there is an existing comment", func() {
+			var expectedCommentID int64 = 1
+			originalCommentText := strings.ReplaceAll(expectedCommentText, "0 to change", "1 to change")
+			mockIssueService.EXPECT().ListComments(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int, opts *gogithub.IssueListCommentsOptions) (interface{}, interface{}, interface{}) {
+					comments := []*gogithub.IssueComment{
+						{
+							ID:   &expectedCommentID,
+							Body: &originalCommentText,
+						},
+					}
+					return comments, nil, nil
+				},
+			)
+			mockIssueService.EXPECT().EditComment(gomock.Any(), "owner", "repo", expectedCommentID, gomock.Any()).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int64, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
+					Convey("should use the right comment text", func() {
+						So(*comment.Body, ShouldEqual, expectedCommentText)
+					})
+					return comment, nil, nil
+				},
+			)
+
+			_, _, err := client.CreateCommentFromOutput(context.TODO(), planOutput.Output, planOutput.Path)
+
+			So(err, ShouldBeNil)
+		})
 	})
 }
 
