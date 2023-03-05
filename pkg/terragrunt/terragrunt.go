@@ -19,12 +19,12 @@ const (
 	terragruntExitCodeNoChanges        int    = 0
 	terragruntExitCodeError            int    = 1
 	terragruntExitCodeWithChanges      int    = 2
-	TerragruntCommandApply					   string = "apply"
+	TerragruntCommandApply             string = "apply"
 	TerragruntCommandPlan              string = "plan"
-	terraformArgumentAutoApprove      string = "-auto-approve"
+	terraformArgumentAutoApprove       string = "-auto-approve"
 	terraformArgumentDetailedExitCode  string = "-detailed-exitcode"
-	terraformArgumentInputFalse				 string = "-input=false"
-	terraformArgumentOut							 string = "-out"
+	terraformArgumentInputFalse        string = "-input=false"
+	terraformArgumentOut               string = "-out"
 )
 
 type Terragrunt struct {
@@ -94,7 +94,7 @@ func (t *Terragrunt) run(command string, arguments ...string) (*TerragruntOutput
 	if err != nil || exitCode != terragruntExitCodeNoChanges {
 		output.Output = strings.Split(execOutput, "\n")
 		output.ExitCode = exitCode
-		err = fmt.Errorf("Error configuring Git safe.directory setting (exit code: %d): %v", exitCode, err)
+		err = fmt.Errorf("Error configuring Git safe.directory setting (exit code: %d): %w", exitCode, err)
 		return output, err
 	}
 
