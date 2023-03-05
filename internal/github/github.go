@@ -13,7 +13,7 @@ import (
 	"text/template"
 
 	"github.com/google/go-github/v47/github"
-	githubinterface "github.com/yardbirdsax/action-terragrunt/pkg/interfaces/github"
+	githubinterface "github.com/yardbirdsax/action-terragrunt/internal/interfaces/github"
 
 	"golang.org/x/oauth2"
 )

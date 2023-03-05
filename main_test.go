@@ -6,10 +6,10 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/yardbirdsax/action-terragrunt/pkg/config"
-	mockgithub "github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
-	mockterragrunt "github.com/yardbirdsax/action-terragrunt/pkg/mock/terragrunt"
-	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/config"
+	mockgithub "github.com/yardbirdsax/action-terragrunt/internal/mock/github"
+	mockterragrunt "github.com/yardbirdsax/action-terragrunt/internal/mock/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/terragrunt"
 )
 
 func TestExecute(t *testing.T) {

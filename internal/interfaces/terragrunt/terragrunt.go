@@ -2,7 +2,7 @@
 package terragrunt
 
 import (
-	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/terragrunt"
 )
 
 type Terragrunt interface {

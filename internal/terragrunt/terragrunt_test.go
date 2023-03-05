@@ -8,9 +8,9 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/yardbirdsax/action-terragrunt/pkg/config"
-	mock "github.com/yardbirdsax/action-terragrunt/pkg/mock/exec"
-	mockgithub "github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
+	"github.com/yardbirdsax/action-terragrunt/internal/config"
+	mock "github.com/yardbirdsax/action-terragrunt/internal/mock/exec"
+	mockgithub "github.com/yardbirdsax/action-terragrunt/internal/mock/github"
 )
 
 var (

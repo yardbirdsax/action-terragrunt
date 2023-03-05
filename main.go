@@ -6,11 +6,11 @@ import (
 	"log"
 
 	"github.com/sethvargo/go-githubactions"
-	"github.com/yardbirdsax/action-terragrunt/pkg/config"
-	"github.com/yardbirdsax/action-terragrunt/pkg/github"
-	githubinterface "github.com/yardbirdsax/action-terragrunt/pkg/interfaces/github"
-	terragruntinterface "github.com/yardbirdsax/action-terragrunt/pkg/interfaces/terragrunt"
-	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/config"
+	"github.com/yardbirdsax/action-terragrunt/internal/github"
+	githubinterface "github.com/yardbirdsax/action-terragrunt/internal/interfaces/github"
+	terragruntinterface "github.com/yardbirdsax/action-terragrunt/internal/interfaces/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/terragrunt"
 )
 
 func main() {

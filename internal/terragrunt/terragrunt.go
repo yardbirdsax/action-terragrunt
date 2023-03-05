@@ -8,9 +8,9 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/yardbirdsax/action-terragrunt/pkg/config"
-	"github.com/yardbirdsax/action-terragrunt/pkg/exec"
-	interfaces "github.com/yardbirdsax/action-terragrunt/pkg/interfaces/exec"
+	"github.com/yardbirdsax/action-terragrunt/internal/config"
+	"github.com/yardbirdsax/action-terragrunt/internal/exec"
+	interfaces "github.com/yardbirdsax/action-terragrunt/internal/interfaces/exec"
 )
 
 const (

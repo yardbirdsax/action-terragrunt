@@ -8,7 +8,7 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	terragrunt "github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
+	terragrunt "github.com/yardbirdsax/action-terragrunt/internal/terragrunt"
 )
 
 // MockTerragrunt is a mock of Terragrunt interface.

@@ -6,18 +6,18 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
-	mock "github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
+	mock "github.com/yardbirdsax/action-terragrunt/internal/mock/github"
 )
 
 func TestNewConfig(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	mockAction := mock.NewMockAction(ctrl)
 	tests := []struct {
-		name           string
-		action         *mock.MockAction
-		optFns         []configOptsFn
+		name            string
+		action          *mock.MockAction
+		optFns          []configOptsFn
 		expectedContext *githubactions.GitHubContext
-		expectedConfig *Config
+		expectedConfig  *Config
 	}{
 		{
 			name:   "WithDefaultPath",
@@ -29,7 +29,7 @@ func TestNewConfig(t *testing.T) {
 					Event:     map[string]any{},
 				},
 				baseDirectory: "path",
-				command: "plan",
+				command:       "plan",
 			},
 		},
 	}

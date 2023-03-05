@@ -5,7 +5,7 @@ package config
 
 import (
 	"github.com/sethvargo/go-githubactions"
-	"github.com/yardbirdsax/action-terragrunt/pkg/interfaces/github"
+	"github.com/yardbirdsax/action-terragrunt/internal/interfaces/github"
 )
 
 const (

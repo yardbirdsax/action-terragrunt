@@ -9,8 +9,8 @@ import (
 	gogithub "github.com/google/go-github/v47/github"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/yardbirdsax/action-terragrunt/pkg/mock/github"
-	"github.com/yardbirdsax/action-terragrunt/pkg/terragrunt"
+	"github.com/yardbirdsax/action-terragrunt/internal/mock/github"
+	"github.com/yardbirdsax/action-terragrunt/internal/terragrunt"
 )
 
 const (
