@@ -19,11 +19,6 @@ type Config struct {
 	gitHubContext *githubactions.GitHubContext
 	// The path where the base configuration resides
 	baseDirectory string
-	// Additional Terragrunt files to be included in the final generated file. These are expected to
-	// be template strings.
-	includes map[string]string
-	// Additional values that are passed to the templating engine when generating included file names.
-	additionalValues map[string]string
 	// The Terragrunt command to run
 	command string
 }
