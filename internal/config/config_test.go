@@ -30,6 +30,7 @@ func TestNewConfig(t *testing.T) {
 				},
 				baseDirectory: "path",
 				command:       "plan",
+				token:         "token",
 			},
 		},
 	}
@@ -37,8 +38,10 @@ func TestNewConfig(t *testing.T) {
 	Convey("TestNewConfig", t, func() {
 		for _, test := range tests {
 			mockAction.EXPECT().Context().Times(1).Return(test.expectedConfig.gitHubContext, nil)
-			mockAction.EXPECT().GetInput(ActionTerraformCommand).Times(1).Return(test.expectedConfig.command).After(
-				mockAction.EXPECT().GetInput(ActionInputBaseDirectory).Times(1).Return(test.expectedConfig.baseDirectory),
+			mockAction.EXPECT().GetInput(ActionInputTerraformCommand).Times(1).Return(test.expectedConfig.command).After(
+				mockAction.EXPECT().GetInput(ActionInputBaseDirectory).Times(1).Return(test.expectedConfig.baseDirectory).After(
+					mockAction.EXPECT().GetInput(ActionInputToken).Times(1).Return(test.expectedConfig.token),
+				),
 			)
 			Convey(test.name, func() {
 				config, err := NewConfig(test.action, test.optFns...)

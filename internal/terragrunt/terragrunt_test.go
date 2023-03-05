@@ -6,11 +6,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/yardbirdsax/action-terragrunt/internal/config"
-	mock "github.com/yardbirdsax/action-terragrunt/internal/mock/exec"
-	mockgithub "github.com/yardbirdsax/action-terragrunt/internal/mock/github"
+	mockconfig "github.com/yardbirdsax/action-terragrunt/internal/mock/config"
+	mockexec "github.com/yardbirdsax/action-terragrunt/internal/mock/exec"
 )
 
 var (
@@ -27,7 +25,7 @@ var (
 func TestWithExecutor(t *testing.T) {
 	Convey("WithExecutor", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExecutor := mock.NewMockExec(ctrl)
+		mockExecutor := mockexec.NewMockExec(ctrl)
 		terragrunt := &Terragrunt{}
 		f := WithExec(mockExecutor)
 
@@ -58,7 +56,7 @@ func TestWithWorkingDirectory(t *testing.T) {
 func TestNewTerragrunt(t *testing.T) {
 	Convey("NewTerragrunt", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExecutor := mock.NewMockExec(ctrl)
+		mockExecutor := mockexec.NewMockExec(ctrl)
 		expectedPath := "path"
 
 		terragrunt, err := NewTerragrunt(
@@ -88,20 +86,13 @@ func TestNewTerragrunt(t *testing.T) {
 func TestNewFromConfig(t *testing.T) {
 	Convey("NewFromConfig", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExec := mock.NewMockExec(ctrl)
-		mockAction := mockgithub.NewMockAction(ctrl)
+		mockExec := mockexec.NewMockExec(ctrl)
+		mockConfig := mockconfig.NewMockConfig(ctrl)
 		expectedBaseDirectory := "base/directory"
-		expectedTerraformCommand := "plan"
-		mockContext := &githubactions.GitHubContext{}
 
-		mockAction.EXPECT().GetInput(config.ActionTerraformCommand).Times(1).Return(expectedTerraformCommand).After(
-			mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Times(1).Return(expectedBaseDirectory),
-		)
-		mockAction.EXPECT().Context().Return(mockContext, nil)
+		mockConfig.EXPECT().BaseDirectory().Times(1).Return(expectedBaseDirectory)
 
-		config, err := config.NewConfig(mockAction)
-		So(err, ShouldBeNil)
-		terragrunt, err := NewFromConfig(config, WithExec(mockExec))
+		terragrunt, err := NewFromConfig(mockConfig, WithExec(mockExec))
 		So(err, ShouldBeNil)
 
 		Convey("should set the base directory", func() {
@@ -114,7 +105,7 @@ func TestNewFromConfig(t *testing.T) {
 func TestRun(t *testing.T) {
 	Convey("Run", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExecutor := mock.NewMockExec(ctrl)
+		mockExecutor := mockexec.NewMockExec(ctrl)
 		expectedCommand := TerragruntCommandPlan
 		expectedWorkingDirectory := "/path/to/terragrunt"
 		expectedArguments := []string{
@@ -148,7 +139,7 @@ func TestRun(t *testing.T) {
 func TestPlan(t *testing.T) {
 	Convey("Plan", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExecutor := mock.NewMockExec(ctrl)
+		mockExecutor := mockexec.NewMockExec(ctrl)
 		expectedWorkingDirectory := "/path/to/terragrunt"
 		expectedArguments := []string{
 			TerragruntCommandPlan,
@@ -200,7 +191,7 @@ func TestPlan(t *testing.T) {
 func TestApply(t *testing.T) {
 	Convey("Apply", t, func() {
 		ctrl := gomock.NewController(t)
-		mockExecutor := mock.NewMockExec(ctrl)
+		mockExecutor := mockexec.NewMockExec(ctrl)
 		expectedWorkingDirectory := "/path/to/terragrunt"
 		expectedArguments := []string{
 			TerragruntCommandApply,

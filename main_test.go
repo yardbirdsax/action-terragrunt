@@ -21,6 +21,7 @@ func TestExecute(t *testing.T) {
 		Convey("plan", func() {
 			expectedBaseDirectory := "base/directory"
 			expectedTerraformCommand := "plan"
+			expectedToken := "token"
 
 			Convey("pull_request", func() {
 				eventName := "pull_request"
@@ -29,8 +30,10 @@ func TestExecute(t *testing.T) {
 					EventName: eventName,
 					Event:     eventData,
 				}
-				mockAction.EXPECT().GetInput(config.ActionTerraformCommand).Return(expectedTerraformCommand).After(
-					mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory),
+				mockAction.EXPECT().GetInput(config.ActionInputTerraformCommand).Return(expectedTerraformCommand).After(
+					mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory).After(
+						mockAction.EXPECT().GetInput(config.ActionInputToken).Times(1).Return(expectedToken),
+					),
 				)
 				mockAction.EXPECT().Context().Return(gitHubContext, nil)
 				config, err := config.NewConfig(mockAction)
@@ -65,6 +68,7 @@ func TestExecute(t *testing.T) {
 		Convey("apply", func() {
 			expectedBaseDirectory := "base/directory"
 			expectedTerraformCommand := "apply"
+			expectedToken := "token"
 
 			eventName := "pull_request"
 			eventData := map[string]interface{}{}
@@ -72,8 +76,10 @@ func TestExecute(t *testing.T) {
 				EventName: eventName,
 				Event:     eventData,
 			}
-			mockAction.EXPECT().GetInput(config.ActionTerraformCommand).Return(expectedTerraformCommand).After(
-				mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory),
+			mockAction.EXPECT().GetInput(config.ActionInputTerraformCommand).Return(expectedTerraformCommand).After(
+				mockAction.EXPECT().GetInput(config.ActionInputBaseDirectory).Return(expectedBaseDirectory).Return(expectedBaseDirectory).After(
+					mockAction.EXPECT().GetInput(config.ActionInputToken).Times(1).Return(expectedToken),
+				),
 			)
 			mockAction.EXPECT().Context().Return(gitHubContext, nil)
 			config, err := config.NewConfig(mockAction)

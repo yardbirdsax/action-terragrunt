@@ -9,8 +9,9 @@ import (
 )
 
 const (
-	ActionInputBaseDirectory string = "base-directory"
-	ActionTerraformCommand   string = "terraform-command"
+	ActionInputBaseDirectory    string = "base-directory"
+	ActionInputTerraformCommand string = "terraform-command"
+	ActionInputToken            string = "token"
 )
 
 // Config is a struct that contains the required elements for configuring the Action.
@@ -21,6 +22,8 @@ type Config struct {
 	baseDirectory string
 	// The Terragrunt command to run
 	command string
+	// The GitHub token to use when interacting with the API
+	token string
 }
 
 // configOptsFn is used for functional options operating on the Config struct.
@@ -31,8 +34,9 @@ func NewConfig(action github.Action, optFns ...configOptsFn) (*Config, error) {
 	config := &Config{}
 	context, _ := action.Context()
 	config.gitHubContext = context
+	config.token = action.GetInput(ActionInputToken)
 	config.baseDirectory = action.GetInput(ActionInputBaseDirectory)
-	config.command = action.GetInput(ActionTerraformCommand)
+	config.command = action.GetInput(ActionInputTerraformCommand)
 	for _, f := range optFns {
 		f(config)
 	}

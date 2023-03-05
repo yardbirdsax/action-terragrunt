@@ -8,8 +8,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/yardbirdsax/action-terragrunt/internal/config"
 	"github.com/yardbirdsax/action-terragrunt/internal/exec"
+	"github.com/yardbirdsax/action-terragrunt/internal/interfaces/config"
 	interfaces "github.com/yardbirdsax/action-terragrunt/internal/interfaces/exec"
 )
 
@@ -107,7 +107,7 @@ func (t *Terragrunt) run(command string, arguments ...string) (*TerragruntOutput
 }
 
 // NewFromConfig is used to create a new Terragrunt struct from a Config object
-func NewFromConfig(config *config.Config, opts ...terragruntOptFns) (*Terragrunt, error) {
+func NewFromConfig(config config.Config, opts ...terragruntOptFns) (*Terragrunt, error) {
 	terragrunt, err := NewTerragrunt(opts...)
 	if err != nil {
 		return nil, err
