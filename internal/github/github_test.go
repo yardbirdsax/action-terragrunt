@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	gogithub "github.com/google/go-github/v47/github"
+	gogithub "github.com/google/go-github/v50/github"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/yardbirdsax/action-terragrunt/internal/mock/github"

@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/golang/mock v1.6.0
-	github.com/google/go-github/v47 v47.1.0
+	github.com/google/go-github/v50 v50.1.0
 	github.com/sethvargo/go-githubactions v1.1.0
 	github.com/smartystreets/goconvey v1.7.2
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
