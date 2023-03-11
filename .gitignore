@@ -16,3 +16,6 @@
 
 coverage.out
 .bin
+
+.terragrunt-cache
+.terraform.lock.hcl
