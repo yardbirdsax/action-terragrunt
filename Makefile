@@ -7,10 +7,10 @@ coverage:
 generate:
 	$(ENV_VARS) go generate ./...
 test:
-	go test -v -count=1 -coverprofile coverage.out ./...
+	go test -count=1 -coverprofile coverage.out ./...
 tidy:
 	go mod tidy
 tools:
 	$(ENV_VARS) go install $$(go list -f '{{join .Imports " "}}' tools.go)
 build: test
-	CGO_ENABLED=0 go build -o app main.go
+	CGO_ENABLED=0 go build -o dist/app main.go
