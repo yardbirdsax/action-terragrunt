@@ -2,8 +2,24 @@ name: Terragrunt Overlay
 description: Apply default and overlayed Terragrunt configurations with GitHub Actions.
 author: Josh Feierman <josh@sqljosh.com>
 runs:
-  using: docker
-  image: 'Dockerfile'
+  # using: docker
+  # image: 'Dockerfile'
+  using: composite
+  steps:
+    - name: checkout action
+      uses: actions/checkout@v3
+      with:
+        repository: ${{ env.GITHUB_ACTION_REPOSITORY }}
+        ref: ${{ inputs.ref }}
+        lfs: true
+        path: action-terragrunt
+    - name: run Terragrunt
+      run: action-terragrunt/dist/app
+      shell: bash
+      env:
+        INPUT_BASE-DIRECTORY: ${{ inputs.base-directory }}
+        INPUT_TERRAFORM-COMMAND: ${{ inputs.terraform-command }}
+        INPUT_TOKEN: ${{ inputs.token }}
 inputs:
   base-directory:
     description: |
@@ -20,3 +36,7 @@ inputs:
       The token to use when interacting with the GitHub API. This can generally be set to the
       default token.
     required: true
+    default: ${{ github.token }}
+  ref:
+    description: The ref of the Action. Don't set this!
+    default: ${{ github.action_ref }}
