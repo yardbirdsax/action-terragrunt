@@ -11,10 +11,8 @@ jobs:
         run: make tools && make generate && make test
   integration_test:
     runs-on: ubuntu-latest
-    env:
-      TERRAGRUNT_LOG_LEVEL: debug
     steps:
-      - uses: actions/checkout@v3
+      # - uses: actions/checkout@v3
       - name: plan test
         uses: ./
         with:
