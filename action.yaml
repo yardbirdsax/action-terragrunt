@@ -15,12 +15,18 @@ runs:
       env:
         TG_VERSION: ${{ inputs.terragrunt-version }}
       run: |
-        curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash -s -- -b ${HOME}/.bin
-        echo ${HOME}/.bin >> ${GITHUB_PATH}
-        echo "${HOME}/.tfenv/bin" >> ${GITHUB_PATH}
-        export PATH=${HOME}/.bin:${HOME}/.tfenv/bin:${PATH}
+        if [ -z "$(command -v tgswitch)" ]; then
+          curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash -s -- -b ${HOME}/.bin
+          echo ${HOME}/.bin >> ${GITHUB_PATH}
+          export PATH=${HOME}/.bin:${PATH}
+        fi
+        if [ -z "$(command -v tfenv)" ]; then
+          echo "${HOME}/.tfenv/bin" >> ${GITHUB_PATH}
+          export PATH=${HOME}/.tfenv/bin:${PATH}
+          git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
+        fi
+        cd "${{ inputs.base-directory }}"
         tgswitch -b ${HOME}/.bin/terragrunt
-        git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
         tfenv use
     - name: run Terragrunt
       run: go build -o ${HOME}/.bin/action-terragrunt main.go

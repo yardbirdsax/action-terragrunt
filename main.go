@@ -47,10 +47,11 @@ func execute(tg terragruntinterface.Terragrunt, config *config.Config, githubCli
 		if output.HasChanges {
 			action.Debugf("event name is: %s", config.GitHubContext().EventName)
 			if config.GitHubContext().EventName == "pull_request" {
-				_, _, err = githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
+				_, resp, err := githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
 				if err != nil {
 					action.Warningf(fmt.Errorf("error creating GitHub comment: %w", err).Error())
 				}
+				action.Debugf("response is: %v", *resp)
 			}
 		}
 	case terragrunt.TerragruntCommandApply:
