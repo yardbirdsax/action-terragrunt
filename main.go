@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 
 	"github.com/sethvargo/go-githubactions"
 	"github.com/yardbirdsax/action-terragrunt/internal/config"
@@ -37,37 +36,36 @@ func main() {
 func execute(tg terragruntinterface.Terragrunt, config *config.Config, githubClient githubinterface.Client) {
 	ctx := context.TODO()
 	action := githubactions.New()
-	log.Println("command is: ", config.Command())
-	log.Println("base directory is: ", config.BaseDirectory())
+	action.Infof("command is: %s", config.Command())
+	action.Infof("base directory is: %s", config.BaseDirectory())
 	switch config.Command() {
 	case terragrunt.TerragruntCommandPlan:
 		output, err := tg.Plan()
-		log.Printf("output is: %v", output)
 		if err != nil {
-			log.Fatalf("error executing Terragrunt plan: %v", err)
+			action.Fatalf("error executing Terragrunt plan: %v", err)
 		}
 		if output.HasChanges {
-			log.Printf("event name is: %s", config.GitHubContext().EventName)
+			action.Debugf("event name is: %s", config.GitHubContext().EventName)
 			if config.GitHubContext().EventName == "pull_request" {
 				_, _, err = githubClient.CreateCommentFromOutput(ctx, output.TerragruntOutput.Output, config.BaseDirectory())
 				if err != nil {
-					action.Fatalf(fmt.Errorf("error creating GitHub comment: %w", err).Error())
+					action.Warningf(fmt.Errorf("error creating GitHub comment: %w", err).Error())
 				}
 			}
 		}
 	case terragrunt.TerragruntCommandApply:
 		planOutput, err := tg.Plan()
 		if err != nil {
-			log.Fatalf("error executing Terragrunt plan: %v", err)
+			action.Fatalf("error executing Terragrunt plan: %v", err)
 		}
 		if planOutput.HasChanges {
 			applyOutput, err := tg.Apply()
 			if err != nil {
-				log.Fatalf("error executing Terragrunt apply: %v", err)
+				action.Fatalf("error executing Terragrunt apply: %v", err)
 			}
-			log.Printf("apply exit code: %d", applyOutput.ExitCode)
+			action.Debugf("apply exit code: %d", applyOutput.ExitCode)
 		} else {
-			log.Println("no changes found, apply will not be run")
+			action.Infof("no changes found, apply will not be run")
 		}
 	}
 }

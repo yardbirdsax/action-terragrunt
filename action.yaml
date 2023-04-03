@@ -12,14 +12,16 @@ runs:
         go-version-file: ${{github.action_path}}/go.mod
     - name: install tgswitch and tfenv
       shell: bash
+      env:
+        TG_VERSION: ${{ inputs.terragrunt-version }}
       run: |
         curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash -s -- -b ${HOME}/.bin
         echo ${HOME}/.bin >> ${GITHUB_PATH}
         echo "${HOME}/.tfenv/bin" >> ${GITHUB_PATH}
         export PATH=${HOME}/.bin:${HOME}/.tfenv/bin:${PATH}
-        tgswitch -b ${HOME}/.bin/terragrunt 0.44.4
+        tgswitch -b ${HOME}/.bin/terragrunt
         git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
-        tfenv use 1.3.9
+        tfenv use
     - name: run Terragrunt
       run: go build -o ${HOME}/.bin/action-terragrunt main.go
       shell: bash
@@ -48,6 +50,19 @@ inputs:
       default token.
     required: true
     default: ${{ github.token }}
+  terragrunt-version:
+    description: >
+      The version of Terragrunt to use. This sets the `TG_VERSION` environment variable, causing the
+      `tgswitch` tool to select the specified version of Terragrunt. If this is unset, `tgswitch`
+      will attempt to determine the correct version of Terragrunt to install using the logic
+      detailed in the [`tgswitch` repository](https://github.com/warrensbox/tgswitch).
+    required: false
+  terrafaorm-version:
+    description: >
+      The version of Terraform to use. This sets the `TFENV_TERRAFORM_VERSION` environment variable,
+      causing the `tfenv` tool to select the specified version of Terraform. If this is unset,
+      `tfenv` will attempt to determine the correct version of Terraform to install using the logic
+      detailed in the [`tfenv` repository](https://github.com/tfutils/tfenv).
   ref:
     description: The ref of the Action. Don't set this!
     default: ${{ github.action_ref }}

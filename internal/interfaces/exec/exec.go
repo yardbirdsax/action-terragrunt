@@ -11,9 +11,9 @@ type Cmd interface {
 }
 
 // CommandFunc is a wrapper interface for the `exec.Command` function.
-type CommandFunc func(string, ...string) *exec.Cmd
+type CommandFunc func(command string, args ...string) *exec.Cmd
 
 // Exec is a wrapper interface for the `exec` package.
 type Exec interface {
-	ExecCommand(string, bool, ...string) (string, int, error)
+	ExecCommand(command string, outputToStdOut bool, args ...string) (output string, exitCode int, err error)
 }
