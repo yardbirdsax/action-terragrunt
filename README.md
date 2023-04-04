@@ -10,6 +10,21 @@ requirements:
 * Provide a mechanism for ensuring that the Action only uses a previously reviewed plan when
   applying a deployment.
 
+<!-- action-docs-inputs -->
+<!-- action-docs-inputs -->
+
+## Permissions
+
+Generally, the default permissions associated with the default GitHub token should work
+fine. However, if you use this in a security-conscious GitHub organization where those default
+permissions are reduced, you must provide, at a minimum, the following:
+
+```
+issues: write
+pull_requests: write
+contents: read
+```
+
 ## Workflow
 
 This Action implements the following workflow.
