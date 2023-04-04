@@ -11,6 +11,28 @@ requirements:
   applying a deployment.
 
 <!-- action-docs-inputs -->
+## Inputs
+
+| parameter | description | required | default |
+| - | - | - | - |
+| base-directory | The base directory for all Terragrunt configurations. Defaults to the root of the
+repository.
+ | `false` | . |
+| terraform-command | The Terraform command to run.
+ | `true` |  |
+| token | The token to use when interacting with the GitHub API. This can generally be set to the
+default token.
+ | `true` | $\{\{ github.token \}\} |
+| terragrunt-version | The version of Terragrunt to use. This sets the `TG_VERSION` environment variable, causing the `tgswitch` tool to select the specified version of Terragrunt. If this is unset, `tgswitch` will attempt to determine the correct version of Terragrunt to install using the logic detailed in the [`tgswitch` repository](https://github.com/warrensbox/tgswitch).
+ | `false` |  |
+| terraform-version | The version of Terraform to use. This sets the `TFENV_TERRAFORM_VERSION` environment variable, causing the `tfenv` tool to select the specified version of Terraform. If this is unset, `tfenv` will attempt to determine the correct version of Terraform to install using the logic detailed in the [`tfenv` repository](https://github.com/tfutils/tfenv).
+ | `false` |  |
+| enable-debug-logging | If set to 'true', then debug logging for Terragrunt will be enabled. It is recommended that you set this input to the 'ACTIONS_RUNNER_DEBUG' secret, so that if debug logging is turned on within GitHub Action's UI, debug logging for Terragrunt will also be turned on.
+ | `false` | false |
+| ref | The ref of the Action. Don't set this! | `false` | $\{\{ github.action_ref \}\} |
+
+
+
 <!-- action-docs-inputs -->
 
 ## Permissions

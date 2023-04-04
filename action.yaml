@@ -3,42 +3,7 @@ description: Apply Terragrunt configurations with GitHub Actions.
 author: Josh Feierman <josh@sqljosh.com>
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/{{ getenv "GITHUB_OWNER" }}/terragrunt-github-actions:{{ getenv "GIT_TAG" }}'
-  # using: composite
-  # steps:
-  #   - name: setup go
-  #     uses: actions/setup-go@v3
-  #     with:
-  #       go-version-file: ${{github.action_path}}/go.mod
-  #   - name: install tgswitch and tfenv
-  #     shell: bash
-  #     env:
-  #       TG_VERSION: ${{ inputs.terragrunt-version }}
-  #     run: |
-  #       if [ -z "$(command -v tgswitch)" ]; then
-  #         curl -L https://raw.githubusercontent.com/warrensbox/tgswitch/release/install.sh | bash -s -- -b ${HOME}/.bin
-  #         echo ${HOME}/.bin >> ${GITHUB_PATH}
-  #         export PATH=${HOME}/.bin:${PATH}
-  #       fi
-  #       if [ -z "$(command -v tfenv)" ]; then
-  #         echo "${HOME}/.tfenv/bin" >> ${GITHUB_PATH}
-  #         export PATH=${HOME}/.tfenv/bin:${PATH}
-  #         git clone --depth=1 https://github.com/tfutils/tfenv.git ~/.tfenv
-  #       fi
-  #       cd "${{ inputs.base-directory }}"
-  #       tgswitch -b ${HOME}/.bin/terragrunt
-  #       tfenv use
-  #   - name: run Terragrunt
-  #     run: go build -o ${HOME}/.bin/action-terragrunt main.go
-  #     shell: bash
-  #     working-directory: "${{github.action_path}}"
-  #   - name: run Action
-  #     run: action-terragrunt
-  #     shell: bash
-  #     env:
-  #       INPUT_BASE-DIRECTORY: ${{ inputs.base-directory }}
-  #       INPUT_TERRAFORM-COMMAND: ${{ inputs.terraform-command }}
-  #       INPUT_TOKEN: ${{ inputs.token }}
+  image: 'docker://ghcr.io/yardbirdsax/action-terragrunt:0.0.1-next'
 inputs:
   base-directory:
     description: |
@@ -55,7 +20,7 @@ inputs:
       The token to use when interacting with the GitHub API. This can generally be set to the
       default token.
     required: true
-    default: ${{ github.token }}
+    default: $\{\{ github.token \}\}
   terragrunt-version:
     description: >
       The version of Terragrunt to use. This sets the `TG_VERSION` environment variable, causing the
@@ -78,4 +43,4 @@ inputs:
       within GitHub Action's UI, debug logging for Terragrunt will also be turned on.
   ref:
     description: The ref of the Action. Don't set this!
-    default: ${{ github.action_ref }}
+    default: $\{\{ github.action_ref \}\}
