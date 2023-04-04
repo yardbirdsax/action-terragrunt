@@ -21,6 +21,19 @@ inputs:
       default token.
     required: true
     default: $\{\{ github.token \}\}
+  terragrunt-version:
+    description: >
+      The version of Terragrunt to use. This sets the `TG_VERSION` environment variable, causing the
+      `tgswitch` tool to select the specified version of Terragrunt. If this is unset, `tgswitch`
+      will attempt to determine the correct version of Terragrunt to install using the logic
+      detailed in the [`tgswitch` repository](https://github.com/warrensbox/tgswitch).
+    required: false
+  terraform-version:
+    description: >
+      The version of Terraform to use. This sets the `TFENV_TERRAFORM_VERSION` environment variable,
+      causing the `tfenv` tool to select the specified version of Terraform. If this is unset,
+      `tfenv` will attempt to determine the correct version of Terraform to install using the logic
+      detailed in the [`tfenv` repository](https://github.com/tfutils/tfenv).
   enable-debug-logging:
     required: false
     default: "false"
