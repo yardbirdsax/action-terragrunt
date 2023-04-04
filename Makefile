@@ -12,5 +12,5 @@ tidy:
 	go mod tidy
 tools:
 	$(ENV_VARS) go install $$(go list -f '{{join .Imports " "}}' tools.go)
-build: test
+build:
 	CGO_ENABLED=0 go build -o dist/app main.go

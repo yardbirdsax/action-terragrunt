@@ -62,6 +62,71 @@ func (mr *MockConfigMockRecorder) Command() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Command", reflect.TypeOf((*MockConfig)(nil).Command))
 }
 
+// DebugEnabled mocks base method.
+func (m *MockConfig) DebugEnabled() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DebugEnabled")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// DebugEnabled indicates an expected call of DebugEnabled.
+func (mr *MockConfigMockRecorder) DebugEnabled() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DebugEnabled", reflect.TypeOf((*MockConfig)(nil).DebugEnabled))
+}
+
+// Debugf mocks base method.
+func (m *MockConfig) Debugf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Debugf", varargs...)
+}
+
+// Debugf indicates an expected call of Debugf.
+func (mr *MockConfigMockRecorder) Debugf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Debugf", reflect.TypeOf((*MockConfig)(nil).Debugf), varargs...)
+}
+
+// Errorf mocks base method.
+func (m *MockConfig) Errorf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Errorf", varargs...)
+}
+
+// Errorf indicates an expected call of Errorf.
+func (mr *MockConfigMockRecorder) Errorf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Errorf", reflect.TypeOf((*MockConfig)(nil).Errorf), varargs...)
+}
+
+// Fatalf mocks base method.
+func (m *MockConfig) Fatalf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Fatalf", varargs...)
+}
+
+// Fatalf indicates an expected call of Fatalf.
+func (mr *MockConfigMockRecorder) Fatalf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fatalf", reflect.TypeOf((*MockConfig)(nil).Fatalf), varargs...)
+}
+
 // GitHubContext mocks base method.
 func (m *MockConfig) GitHubContext() githubactions.GitHubContext {
 	m.ctrl.T.Helper()
@@ -74,4 +139,38 @@ func (m *MockConfig) GitHubContext() githubactions.GitHubContext {
 func (mr *MockConfigMockRecorder) GitHubContext() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GitHubContext", reflect.TypeOf((*MockConfig)(nil).GitHubContext))
+}
+
+// Infof mocks base method.
+func (m *MockConfig) Infof(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Infof", varargs...)
+}
+
+// Infof indicates an expected call of Infof.
+func (mr *MockConfigMockRecorder) Infof(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Infof", reflect.TypeOf((*MockConfig)(nil).Infof), varargs...)
+}
+
+// Warningf mocks base method.
+func (m *MockConfig) Warningf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Warningf", varargs...)
+}
+
+// Warningf indicates an expected call of Warningf.
+func (mr *MockConfigMockRecorder) Warningf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Warningf", reflect.TypeOf((*MockConfig)(nil).Warningf), varargs...)
 }

@@ -15,5 +15,5 @@ type CommandFunc func(command string, args ...string) *exec.Cmd
 
 // Exec is a wrapper interface for the `exec` package.
 type Exec interface {
-	ExecCommand(command string, outputToStdOut bool, args ...string) (output string, exitCode int, err error)
+	ExecCommand(command string, outputToStdOut bool, workingDirectory string, args ...string) (output string, exitCode int, err error)
 }

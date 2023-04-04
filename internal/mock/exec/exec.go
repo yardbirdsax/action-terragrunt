@@ -71,10 +71,10 @@ func (m *MockExec) EXPECT() *MockExecMockRecorder {
 }
 
 // ExecCommand mocks base method.
-func (m *MockExec) ExecCommand(arg0 string, arg1 bool, arg2 ...string) (string, int, error) {
+func (m *MockExec) ExecCommand(command string, outputToStdOut bool, workingDirectory string, args ...string) (string, int, error) {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
+	varargs := []interface{}{command, outputToStdOut, workingDirectory}
+	for _, a := range args {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ExecCommand", varargs...)
@@ -85,8 +85,8 @@ func (m *MockExec) ExecCommand(arg0 string, arg1 bool, arg2 ...string) (string, 
 }
 
 // ExecCommand indicates an expected call of ExecCommand.
-func (mr *MockExecMockRecorder) ExecCommand(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+func (mr *MockExecMockRecorder) ExecCommand(command, outputToStdOut, workingDirectory interface{}, args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	varargs := append([]interface{}{command, outputToStdOut, workingDirectory}, args...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecCommand", reflect.TypeOf((*MockExec)(nil).ExecCommand), varargs...)
 }

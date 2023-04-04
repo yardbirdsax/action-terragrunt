@@ -11,6 +11,7 @@ import (
 	"github.com/yardbirdsax/action-terragrunt/internal/exec"
 	"github.com/yardbirdsax/action-terragrunt/internal/interfaces/config"
 	interfaces "github.com/yardbirdsax/action-terragrunt/internal/interfaces/exec"
+	"github.com/yardbirdsax/action-terragrunt/internal/interfaces/logger"
 )
 
 const (
@@ -34,6 +35,12 @@ type Terragrunt struct {
 	// workingDirectory is the working directory passed to Terragrunt via the --terragrunt-working-dir
 	// argument
 	workingDirectory string
+
+	// The underlying logging provider
+	logger logger.Logger
+
+	// Debug logging enabled
+	enableDebugLogging bool
 }
 
 // terragruntOptFns defines optional functions for the Terragrunt struct
@@ -65,10 +72,19 @@ func WithWorkingDirectory(path string) terragruntOptFns {
 	}
 }
 
+// WithLogger sets the logger used for Terragrunt executions
+func WithLogger(l logger.Logger) terragruntOptFns {
+	return func(t *Terragrunt) error {
+		t.logger = l
+		return nil
+	}
+}
+
 // NewTerragrunt is used to create a new Terragrunt struct
 func NewTerragrunt(opts ...terragruntOptFns) (*Terragrunt, error) {
 	terragrunt := &Terragrunt{
-		exec: exec.NewExecutor(),
+		exec:   exec.NewExecutor(),
+		logger: logger.DummyLogger{},
 	}
 	for _, f := range opts {
 		err := f(terragrunt)
@@ -90,17 +106,30 @@ func (t *Terragrunt) run(command string, arguments ...string) (*TerragruntOutput
 		"safe.directory",
 		"/github/workspace",
 	}
-	execOutput, exitCode, err := t.exec.ExecCommand(gitCommand, true, gitArguments...)
+	execOutput, exitCode, err := t.exec.ExecCommand(gitCommand, true, "", gitArguments...)
 	if err != nil || exitCode != terragruntExitCodeNoChanges {
 		output.Output = strings.Split(execOutput, "\n")
 		output.ExitCode = exitCode
-		err = fmt.Errorf("Error configuring Git safe.directory setting (exit code: %d): %w", exitCode, err)
+		err = fmt.Errorf("error configuring Git safe.directory setting (exit code: %d): %w", exitCode, err)
+		return output, err
+	}
+
+	tgSwitchCommand := "tgswitch"
+	execOutput, exitCode, err = t.exec.ExecCommand(tgSwitchCommand, true, t.workingDirectory)
+	if err != nil {
+		output.Output = strings.Split(execOutput, "\n")
+		output.ExitCode = exitCode
+		err = fmt.Errorf("error executing 'tgswitch' (exit code: %d): %w", exitCode, err)
 		return output, err
 	}
 
 	combinedArguments := []string{command, terragruntWorkingDirectoryArgument, t.workingDirectory}
 	combinedArguments = append(combinedArguments, arguments...)
-	execOutput, exitCode, err = t.exec.ExecCommand(terragruntDefaultBinary, true, combinedArguments...)
+	if t.enableDebugLogging {
+		combinedArguments = append(combinedArguments, "--terragrunt-log-level=trace")
+	}
+	t.logger.Infof("terragrunt will be executed with the following arguments: %s", combinedArguments)
+	execOutput, exitCode, err = t.exec.ExecCommand(terragruntDefaultBinary, true, "", combinedArguments...)
 	output.Output = strings.Split(execOutput, "\n")
 	output.ExitCode = exitCode
 	return output, err
@@ -113,6 +142,8 @@ func NewFromConfig(config config.Config, opts ...terragruntOptFns) (*Terragrunt,
 		return nil, err
 	}
 	terragrunt.workingDirectory = config.BaseDirectory()
+	terragrunt.logger = config
+	terragrunt.enableDebugLogging = config.DebugEnabled()
 	return terragrunt, nil
 }
 

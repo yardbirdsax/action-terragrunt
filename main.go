@@ -52,6 +52,7 @@ func execute(tg terragruntinterface.Terragrunt, config *config.Config, githubCli
 					action.Warningf(fmt.Errorf("error creating GitHub comment: %w", err).Error())
 				}
 				action.Debugf("response is: %v", *resp)
+				action.Debugf("response status code is: %s", resp.Status)
 			}
 		}
 	case terragrunt.TerragruntCommandApply:

@@ -1,6 +1,10 @@
 on:
   pull_request:
 
+# permissions:
+#   issues: write
+#   pull-requests: write
+#   contents: read
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -19,9 +23,11 @@ jobs:
           terraform-command: plan
           base-directory: ./integration/terragrunt/
           token: ${{ secrets.GITHUB_TOKEN }}
+          enable-debug-logging: "true"
       - name: apply test
         uses: ./
         with:
           terraform-command: apply
           base-directory: ./integration/terragrunt/
           token: ${{ secrets.GITHUB_TOKEN }}
+          enable-debug-logging: "true"

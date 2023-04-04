@@ -51,6 +51,57 @@ func (mr *MockActionMockRecorder) Context() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Context", reflect.TypeOf((*MockAction)(nil).Context))
 }
 
+// Debugf mocks base method.
+func (m *MockAction) Debugf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Debugf", varargs...)
+}
+
+// Debugf indicates an expected call of Debugf.
+func (mr *MockActionMockRecorder) Debugf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Debugf", reflect.TypeOf((*MockAction)(nil).Debugf), varargs...)
+}
+
+// Errorf mocks base method.
+func (m *MockAction) Errorf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Errorf", varargs...)
+}
+
+// Errorf indicates an expected call of Errorf.
+func (mr *MockActionMockRecorder) Errorf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Errorf", reflect.TypeOf((*MockAction)(nil).Errorf), varargs...)
+}
+
+// Fatalf mocks base method.
+func (m *MockAction) Fatalf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Fatalf", varargs...)
+}
+
+// Fatalf indicates an expected call of Fatalf.
+func (mr *MockActionMockRecorder) Fatalf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Fatalf", reflect.TypeOf((*MockAction)(nil).Fatalf), varargs...)
+}
+
 // GetInput mocks base method.
 func (m *MockAction) GetInput(arg0 string) string {
 	m.ctrl.T.Helper()
@@ -63,6 +114,40 @@ func (m *MockAction) GetInput(arg0 string) string {
 func (mr *MockActionMockRecorder) GetInput(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInput", reflect.TypeOf((*MockAction)(nil).GetInput), arg0)
+}
+
+// Infof mocks base method.
+func (m *MockAction) Infof(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Infof", varargs...)
+}
+
+// Infof indicates an expected call of Infof.
+func (mr *MockActionMockRecorder) Infof(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Infof", reflect.TypeOf((*MockAction)(nil).Infof), varargs...)
+}
+
+// Warningf mocks base method.
+func (m *MockAction) Warningf(message string, args ...any) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{message}
+	for _, a := range args {
+		varargs = append(varargs, a)
+	}
+	m.ctrl.Call(m, "Warningf", varargs...)
+}
+
+// Warningf indicates an expected call of Warningf.
+func (mr *MockActionMockRecorder) Warningf(message interface{}, args ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{message}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Warningf", reflect.TypeOf((*MockAction)(nil).Warningf), varargs...)
 }
 
 // MockPullRequestService is a mock of PullRequestService interface.
@@ -141,6 +226,21 @@ func (m *MockIssueService) CreateComment(ctx context.Context, owner, repo string
 func (mr *MockIssueServiceMockRecorder) CreateComment(ctx, owner, repo, number, comment interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateComment", reflect.TypeOf((*MockIssueService)(nil).CreateComment), ctx, owner, repo, number, comment)
+}
+
+// DeleteComment mocks base method.
+func (m *MockIssueService) DeleteComment(ctx context.Context, owner, repo string, commentID int64) (*github.Response, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteComment", ctx, owner, repo, commentID)
+	ret0, _ := ret[0].(*github.Response)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteComment indicates an expected call of DeleteComment.
+func (mr *MockIssueServiceMockRecorder) DeleteComment(ctx, owner, repo, commentID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteComment", reflect.TypeOf((*MockIssueService)(nil).DeleteComment), ctx, owner, repo, commentID)
 }
 
 // EditComment mocks base method.

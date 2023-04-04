@@ -1,6 +1,7 @@
 package config
 
 import (
+	"strconv"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -10,46 +11,69 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	mockAction := mock.NewMockAction(ctrl)
-	tests := []struct {
-		name            string
-		action          *mock.MockAction
-		optFns          []configOptsFn
-		expectedContext *githubactions.GitHubContext
-		expectedConfig  *Config
-	}{
-		{
-			name:   "WithDefaultPath",
-			action: mockAction,
-			optFns: []configOptsFn{},
-			expectedConfig: &Config{
-				gitHubContext: &githubactions.GitHubContext{
-					EventName: "pull_request",
-					Event:     map[string]any{},
-				},
-				baseDirectory: "path",
-				command:       "plan",
-				token:         "token",
-			},
-		},
-	}
-
 	Convey("TestNewConfig", t, func() {
+		ctrl := gomock.NewController(t)
+		mockAction := mock.NewMockAction(ctrl)
+		tests := []struct {
+			name            string
+			action          *mock.MockAction
+			optFns          []configOptsFn
+			expectedContext *githubactions.GitHubContext
+			expectedConfig  *Config
+			actionStepDebug bool
+		}{
+			{
+				name:   "WithDefaultPath",
+				action: mockAction,
+				optFns: []configOptsFn{},
+				expectedConfig: &Config{
+					gitHubContext: &githubactions.GitHubContext{
+						EventName: "pull_request",
+						Event:     map[string]any{},
+					},
+					baseDirectory: "path",
+					command:       "plan",
+					token:         "token",
+					action:        mockAction,
+				},
+			},
+			{
+				name:   "WithDebugLogging",
+				action: mockAction,
+				optFns: []configOptsFn{},
+				expectedConfig: &Config{
+					gitHubContext: &githubactions.GitHubContext{
+						EventName: "pull_request",
+						Event:     map[string]any{},
+					},
+					baseDirectory: "path",
+					command:       "plan",
+					token:         "token",
+					action:        mockAction,
+					debug:         true,
+				},
+				actionStepDebug: true,
+			},
+		}
+
 		for _, test := range tests {
-			mockAction.EXPECT().Context().Times(1).Return(test.expectedConfig.gitHubContext, nil)
-			mockAction.EXPECT().GetInput(ActionInputTerraformCommand).Times(1).Return(test.expectedConfig.command).After(
-				mockAction.EXPECT().GetInput(ActionInputBaseDirectory).Times(1).Return(test.expectedConfig.baseDirectory).After(
-					mockAction.EXPECT().GetInput(ActionInputToken).Times(1).Return(test.expectedConfig.token),
-				),
-			)
 			Convey(test.name, func() {
-				config, err := NewConfig(test.action, test.optFns...)
-				Convey("should not return an error", func() {
-					So(err, ShouldBeNil)
-				})
-				Convey("should return the expected config", func() {
-					So(config, ShouldResemble, test.expectedConfig)
+				mockAction.EXPECT().Context().Times(1).Return(test.expectedConfig.gitHubContext, nil)
+				mockAction.EXPECT().GetInput(ActionInputDebug).Return(strconv.FormatBool(test.actionStepDebug)).Times(1).After(
+					mockAction.EXPECT().GetInput(ActionInputTerraformCommand).Times(1).Return(test.expectedConfig.command).After(
+						mockAction.EXPECT().GetInput(ActionInputBaseDirectory).Times(1).Return(test.expectedConfig.baseDirectory).After(
+							mockAction.EXPECT().GetInput(ActionInputToken).Times(1).Return(test.expectedConfig.token),
+						),
+					),
+				)
+				Convey(test.name, func() {
+					config, err := NewConfig(test.action, test.optFns...)
+					Convey("should not return an error", func() {
+						So(err, ShouldBeNil)
+					})
+					Convey("should return the expected config", func() {
+						So(config, ShouldResemble, test.expectedConfig)
+					})
 				})
 			})
 		}
@@ -102,5 +126,16 @@ func TestGitHubContext(t *testing.T) {
 			So(actualGitHubContext, ShouldResemble, *expectedGitHubContext)
 		})
 	})
+}
 
+func TestDebugEnabled(t *testing.T) {
+	Convey("DebugEnabled", t, func() {
+		config := &Config{
+			debug: true,
+		}
+
+		Convey("should return the correct value", func() {
+			So(config.DebugEnabled(), ShouldBeTrue)
+		})
+	})
 }

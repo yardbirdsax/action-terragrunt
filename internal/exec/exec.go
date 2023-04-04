@@ -13,7 +13,7 @@ func NewExecutor() *Executor {
 	return &Executor{}
 }
 
-func (*Executor) ExecCommand(command string, writeToConsole bool, args ...string) (output string, exitCode int, err error) {
+func (e *Executor) ExecCommand(command string, writeToConsole bool, workingDirectory string, args ...string) (output string, exitCode int, err error) {
 	var buffer bytes.Buffer
 	exitCode = 0
 	stdOutWriters := []io.Writer{&buffer}
@@ -29,6 +29,9 @@ func (*Executor) ExecCommand(command string, writeToConsole bool, args ...string
 	cmd.Stdout = stdOutW
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = stdErrW
+	if workingDirectory != "" {
+		cmd.Dir = workingDirectory
+	}
 
 	err = cmd.Run()
 	if exitErr, ok := err.(*exec.ExitError); ok {

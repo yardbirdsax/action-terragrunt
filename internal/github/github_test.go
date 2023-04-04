@@ -2,6 +2,7 @@ package github
 
 import (
 	"context"
+	"net/http"
 	"strings"
 	"testing"
 
@@ -143,8 +144,13 @@ func TestCreateCommentFromPlan(t *testing.T) {
 					return comments, nil, nil
 				},
 			)
-			mockIssueService.EXPECT().EditComment(gomock.Any(), "owner", "repo", expectedCommentID, gomock.Any()).DoAndReturn(
-				func(ctx context.Context, owner string, repo string, number int64, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
+			mockIssueService.EXPECT().DeleteComment(gomock.Any(), "owner", "repo", expectedCommentID).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int64) (interface{}, interface{}) {
+					return &gogithub.Response{Response: &http.Response{Status: "200 OK"}}, nil
+				},
+			)
+			mockIssueService.EXPECT().CreateComment(gomock.Any(), "owner", "repo", 2, gomock.Any()).DoAndReturn(
+				func(ctx context.Context, owner string, repo string, number int, comment *gogithub.IssueComment) (interface{}, interface{}, interface{}) {
 					Convey("should use the right comment text", func() {
 						So(*comment.Body, ShouldEqual, expectedCommentText)
 					})

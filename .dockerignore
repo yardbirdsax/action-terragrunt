@@ -2,7 +2,6 @@ LICENSE
 integration/
 .vscode/
 .bin/
-vendor/
 README.md
 Dockerfile
 .dockerignore

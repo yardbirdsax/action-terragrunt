@@ -104,10 +104,12 @@ func (c *Client) CreateCommentFromOutput(ctx context.Context, planOutput []strin
 	}
 
 	if existingCommentID != 0 {
-		return c.issueService.EditComment(context.TODO(), c.owner, c.repository, existingCommentID, comment)
-	} else {
-		return c.issueService.CreateComment(context.TODO(), c.owner, c.repository, c.pullRequestNumber, comment)
+		resp, err := c.issueService.DeleteComment(context.TODO(), c.owner, c.repository, existingCommentID)
+		if err != nil {
+			return nil, resp, fmt.Errorf("error deleting comment with ID %q: %w", existingCommentID, err)
+		}
 	}
+	return c.issueService.CreateComment(context.TODO(), c.owner, c.repository, c.pullRequestNumber, comment)
 }
 
 func cleanOutput(output []string) []string {

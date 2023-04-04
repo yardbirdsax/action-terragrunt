@@ -1,9 +1,11 @@
 package main
 
 import (
+	"net/http"
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/google/go-github/v50/github"
 	"github.com/sethvargo/go-githubactions"
 	. "github.com/smartystreets/goconvey/convey"
 	"github.com/yardbirdsax/action-terragrunt/internal/config"
@@ -17,6 +19,8 @@ func TestExecute(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		mockAction := mockgithub.NewMockAction(ctrl)
 		mockGitHubClient := mockgithub.NewMockClient(ctrl)
+
+		mockAction.EXPECT().GetInput(config.ActionInputDebug).Return("false")
 
 		Convey("plan", func() {
 			expectedBaseDirectory := "base/directory"
@@ -51,7 +55,7 @@ func TestExecute(t *testing.T) {
 						},
 					}
 					mockTerragrunt.EXPECT().Plan().Times(1).Return(expectedPlanOutput, nil)
-					mockGitHubClient.EXPECT().CreateCommentFromOutput(gomock.Any(), expectedCommandOutput, expectedBaseDirectory).Times(1)
+					mockGitHubClient.EXPECT().CreateCommentFromOutput(gomock.Any(), expectedCommandOutput, expectedBaseDirectory).Times(1).Return(nil, &github.Response{Response: &http.Response{Status: "200 OK"}}, nil)
 					execute(mockTerragrunt, config, mockGitHubClient)
 				})
 
