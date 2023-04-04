@@ -1,0 +1,79 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release:
+    permissions:
+      packages: write
+      contents: write
+
+    name: Create GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+      - name: Get Version Number
+        id: version
+        uses: mathieudutour/github-tag-action@v6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dry_run: true
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64
+          push: false
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.new_version }}
+            ${{ github.repository }}:${{ github.sha }}
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: '${{ github.repository }}:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+      - name: Push
+        uses: docker/build-push-action@v3
+        with:
+          context: .
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}:${{ github.sha }}
+            ghcr.io/${{ github.repository }}:${{ steps.version.outputs.new_version }}
+      - name: Template action metadata file
+        shell: bash
+        env:
+          GIT_TAG: "${{ steps.version.outputs.new_version }}"
+          GITHUB_OWNER: "${{ github.repository_owner }}"
+        run: |
+          make template
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        name: commit back action changes
+        with:
+          commit_message: "auto-commit action.yaml and README changes"
+          file_pattern: action.yaml README.md
+          skip_checkout: true
+          skip_fetch: true
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          generate_release_notes: true
+          tag_name: ${{ steps.version.outputs.new_tag }}
