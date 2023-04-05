@@ -3,7 +3,7 @@ description: Apply Terragrunt configurations with GitHub Actions.
 author: Josh Feierman <josh@sqljosh.com>
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/yardbirdsax/action-terragrunt:0.0.1-next'
+  image: 'docker://ghcr.io/yardbirdsax/action-terragrunt:0.0.1'
 inputs:
   base-directory:
     description: |
