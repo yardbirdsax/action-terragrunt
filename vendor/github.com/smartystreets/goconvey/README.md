@@ -1,3 +1,5 @@
+# SMARTY DISCLAIMER: Subject to the terms of the associated license agreement, this software is freely available for your use. This software is FREE, AS IN PUPPIES, and is a gift. Enjoy your new responsibility. This means that while we may consider enhancement requests, we may or may not choose to entertain requests at our sole and absolute discretion.
+
 GoConvey is awesome Go testing
 ==============================
 
@@ -5,7 +7,7 @@ GoConvey is awesome Go testing
 [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.svg)](http://godoc.org/github.com/smartystreets/goconvey)
 
 
-Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure. **[View full feature tour.](http://goconvey.co)**
+Welcome to GoConvey, a yummy Go testing tool for gophers. Works with `go test`. Use it in the terminal or browser according to your viewing pleasure.
 
 GoConvey supports the current versions of Go (see the official Go
 [release policy](https://golang.org/doc/devel/release#policy)). Currently
@@ -39,7 +41,7 @@ You can ask questions about how to use GoConvey on [StackOverflow](http://stacko
 Installation
 ------------
 
-	$ go get github.com/smartystreets/goconvey
+	$ go install github.com/smartystreets/goconvey
 
 [Quick start](https://github.com/smartystreets/goconvey/wiki#get-going-in-25-seconds)
 -----------
@@ -116,11 +118,6 @@ Check out the
 - [GoConvey wiki](https://github.com/smartystreets/goconvey/wiki),
 - [![GoDoc](https://godoc.org/github.com/smartystreets/goconvey?status.png)](http://godoc.org/github.com/smartystreets/goconvey)
 - and the *_test.go files scattered throughout this project.
-
-[Screenshots](http://goconvey.co)
------------
-
-For web UI and terminal screenshots, check out [the full feature tour](http://goconvey.co).
 
 Contributors
 ----------------------
